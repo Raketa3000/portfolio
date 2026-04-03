@@ -11,7 +11,7 @@
   "stats": [
     ["17K", ["SITE", "VISITS"]],
     ["1M", ["MEDIA", "VIEWS"]],
-    ["15M", ["VK", "VIEWS"]],
-    ["5.52%", ["ER"]]
+    ["15M", ["VKONTAKTE", "VIEWS"]],
+    ["5.52%", ["ENGAGMENT RATE"]]
   ]
 }
