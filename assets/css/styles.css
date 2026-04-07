@@ -1,6 +1,3 @@
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap&subset=cyrillic"
-      rel="stylesheet">
-    <style>
       *,
       :before,
       :after {
@@ -1390,5 +1387,3 @@
       .case-col__text {
         text-align: left;
         text-justify: inter-word;
-      }
-    </style>
