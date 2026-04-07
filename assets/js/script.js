@@ -155,7 +155,7 @@
               return SITE_DATA.screens[id] || {}
             },
             toRawUrl = function(v) {
-              return 'https://raw.githubusercontent.com/Raketa3000/portfolio/main/cases/' + v + '.json?v=1'
+              return 'assets/cases/' + v + '.json'
             };
 
           function nbsp(s) {
