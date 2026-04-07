@@ -777,3 +777,6 @@
           updateMaster();
           syncUiState();
           go('s0', false);
+          scheduleHero()
+        })
+      })();
