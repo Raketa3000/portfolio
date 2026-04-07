@@ -17,6 +17,11 @@ landing-page-prod/
     └── images/         # Изображения (добавьте сюда profile1.jpg и profile2.jpg)
 ```
 
+## Настройка
+
+1. **Изображения**: Замените файлы в `assets/images/` на реальные фото `profile1.jpg` и `profile2.jpg`.
+2. **Кейсы**: Добавьте JSON файлы в `assets/cases/` с данными для кейсов (beeline-eto-vyshka.json, beeline-kiberbitva-s-moshennikami.json, letual-prohor-shalyapin.json).
+
 ## Запуск
 
 Откройте `index.html` в браузере.
