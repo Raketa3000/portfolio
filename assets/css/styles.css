@@ -28,7 +28,7 @@
         --font-eyebrow: 300 clamp(9px, 1vw, 10px)/1.2 Inter, sans-serif;
         --font-title: 800 clamp(18px, 2vw, 24px)/1.1 Inter, sans-serif;
         --font-body: 300 clamp(14px, 1.4vw, 16px)/1.2 Inter, sans-serif;
-        --font-body-small: 300 clamp(11px, 1.1vw, 13px)/1.2 Inter, sans-serif;
+        --font-body-small: 300 clamp(12px, 1.5vw, 16px)/1.2 Inter, sans-serif;
         --space-eyebrow-title: 10px;
         --space-title-body: 20px;
         --space-case-title: 14px;
