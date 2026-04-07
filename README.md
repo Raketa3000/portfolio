@@ -4,9 +4,18 @@
 
 ## Структура проекта
 
-- `index.html` - Основной HTML файл
-- `styles.css` - Стили CSS
-- `script.js` - JavaScript код
+```
+landing-page-prod/
+├── index.html          # Основной HTML файл
+├── README.md           # Описание проекта
+├── .gitignore          # Исключаемые файлы
+└── assets/
+    ├── css/
+    │   └── styles.css  # Стили CSS
+    ├── js/
+    │   └── script.js   # JavaScript код
+    └── images/         # Изображения (добавьте сюда profile1.jpg и profile2.jpg)
+```
 
 ## Запуск
 
