@@ -1,4 +1,3 @@
-    <script>
       (function() {
         addEventListener('DOMContentLoaded', function() {
           var $ = function(s, r) {
@@ -779,3 +778,5 @@
           syncUiState();
           go('s0', false);
           scheduleHero()
+;
+})();
