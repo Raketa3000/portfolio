@@ -11,24 +11,28 @@
         --text: #ff4da6;
         --line: rgba(255,77,166,0.1);
         --glow: 0 0 24px rgba(255,77,166,0.5), 0 0 60px rgba(255,77,166,0.5);
-        --g: 20px;
-        --fx: clamp(16px, 4vw, 40px);
-        --fb: clamp(16px, 3vw, 28px);
-        --nt: 20px;
-        --nh: 44px;
+        --grid-columns: 12;
+        --grid-rows: 4;
+        --grid-gap: 20px;
+        --grid-padding: clamp(16px, 4vw, 40px);
+        --grid-max-width: 1440px;
+        --section-padding-bottom: clamp(16px, 3vw, 28px);
+        --nav-top: 20px;
+        --nav-height: 44px;
         --ease: cubic-bezier(.22, 1, .36, 1);
         --ease-soft: cubic-bezier(.16, 1, .3, 1);
         --sec: transform .7s var(--ease);
         --tr-reveal: opacity .5s ease, transform .8s var(--ease-soft);
         --tr-fade: opacity .24s ease, visibility .24s ease;
-        --font-ui: 300 clamp(12px, 1.2vw, 14px)/1.2 Inter, sans-serif;
-        --font-case-title: 800 clamp(20px, 2.5vw, 28px)/1.1 Inter, sans-serif;
-        --font-section: 900 clamp(32px, 5.5vw, 64px)/1 Inter, sans-serif;
-        --font-hero: 900 clamp(36px, 6vw, 72px)/1 Inter, sans-serif;
-        --font-eyebrow: 300 clamp(9px, 1vw, 10px)/1.2 Inter, sans-serif;
-        --font-title: 800 clamp(18px, 2vw, 24px)/1.1 Inter, sans-serif;
-        --font-body: 300 clamp(14px, 1.4vw, 16px)/1.2 Inter, sans-serif;
-        --font-body-small: 300 clamp(11px, 1.1vw, 13px)/1.2 Inter, sans-serif;
+        --font-family: Inter, sans-serif;
+        --font-ui: 300 clamp(12px, 1.2vw, 14px)/1.2 var(--font-family);
+        --font-case-title: 800 clamp(20px, 2.5vw, 28px)/1.1 var(--font-family);
+        --font-section: 900 clamp(32px, 5.5vw, 64px)/1 var(--font-family);
+        --font-hero: 900 clamp(36px, 6vw, 72px)/1 var(--font-family);
+        --font-eyebrow: 300 clamp(9px, 1vw, 10px)/1.2 var(--font-family);
+        --font-title: 800 clamp(18px, 2vw, 24px)/1.1 var(--font-family);
+        --font-body: 300 clamp(14px, 1.4vw, 16px)/1.2 var(--font-family);
+        --font-body-small: 300 clamp(11px, 1.1vw, 13px)/1.2 var(--font-family);
         --space-eyebrow-title: 10px;
         --space-title-body: 20px;
         --space-case-title: 14px;
@@ -43,14 +47,10 @@
         height: 100%;
         background: var(--bg);
         color: var(--text);
-        font-family: Inter, sans-serif;
+        font-family: var(--font-family);
         letter-spacing: -.01em;
         overflow: hidden;
         position: relative;
-        hyphens: auto;
-        -webkit-hyphens: auto;
-        -moz-hyphens: auto;
-        word-wrap: break-word;
         orphans: 2;
         widows: 2;
       }
@@ -108,10 +108,10 @@
 
       .container {
         height: 100%;
-        padding: 0 var(--fx);
+        padding: 0 var(--grid-padding);
         position: relative;
         z-index: 3;
-        max-width: 1440px;
+        max-width: var(--grid-max-width);
         margin: auto
       }
 
@@ -139,15 +139,15 @@
       .case-stage__frame,
       .master-grid,
       .dev-cols {
-        grid-template-columns: repeat(12, minmax(0, 1fr));
-        column-gap: var(--g)
+        grid-template-columns: repeat(var(--grid-columns), minmax(0, 1fr));
+        column-gap: var(--grid-gap)
       }
 
       .case-stage__frame,
       .master-grid,
       .dev-rows {
-        grid-template-rows: repeat(4, minmax(0, 1fr));
-        row-gap: var(--g)
+        grid-template-rows: repeat(var(--grid-rows), minmax(0, 1fr));
+        row-gap: var(--grid-gap)
       }
 
       .card,
@@ -227,7 +227,7 @@
 
       .heading,
       .trim-inter {
-        font-family: Inter, sans-serif
+        font-family: var(--font-family)
       }
 
       .heading {
@@ -248,11 +248,10 @@
       .hero-copy,
       .card-desc,
       .team-note,
-      .case-col__text,
       .case-stat__label {
         text-wrap: pretty;
-        -webkit-hyphens: auto;
-        hyphens: auto
+        -webkit-hyphens: none;
+        hyphens: none
       }
 
       .hero-copy,
@@ -268,17 +267,8 @@
         font: var(--font-body);
         line-height: 1.2;
         color: var(--text);
-        text-wrap: balance;
-        text-wrap: pretty;
-        -webkit-hyphens: auto;
-        -moz-hyphens: auto;
-        hyphens: auto;
-        overflow-wrap: break-word;
+        overflow-wrap: normal;
         word-break: normal;
-        line-break: strict;
-        hyphenate-limit-chars: 4 3 2;
-        hyphenate-limit-lines: 2;
-        hyphenate-limit-zone: 10%;
       }
 
       .case-cat,
@@ -481,10 +471,10 @@
       nav,
       .menu {
         position: fixed;
-        top: var(--nt);
+        top: var(--nav-top);
         left: 50%;
         transform: translateX(-50%);
-        width: min(calc(100% - 2*var(--fx)), calc(1440px - 2*var(--fx)));
+        width: min(calc(100% - 2*var(--grid-padding)), calc(var(--grid-max-width) - 2*var(--grid-padding)));
         transition: var(--tr-fade)
       }
 
@@ -504,7 +494,7 @@
         align-items: center;
         justify-content: flex-end;
         min-width: 0;
-        height: var(--nh);
+        height: var(--nav-height);
         text-align: right;
         font: var(--font-ui);
         white-space: nowrap
@@ -526,14 +516,14 @@
 
       #dev-toggle {
         position: fixed;
-        right: var(--fx);
-        bottom: var(--fb);
+        right: var(--grid-padding);
+        bottom: var(--section-padding-bottom);
         z-index: 120;
         font: var(--font-ui)
       }
 
       .menu {
-        height: var(--nh);
+        height: var(--nav-height);
         z-index: 95;
         pointer-events: none
       }
@@ -555,7 +545,7 @@
       .menu__mask {
         position: absolute;
         top: 50%;
-        height: calc(var(--nh) + 8px);
+        height: calc(var(--nav-height) + 8px);
         transform: translateY(-50%);
         background: var(--bg);
         pointer-events: none;
@@ -607,7 +597,7 @@
       .dev-frame {
         display: none;
         position: absolute;
-        inset: var(--master-top) var(--fx) var(--fb);
+        inset: var(--master-top) var(--grid-padding) var(--section-padding-bottom);
         pointer-events: none;
         z-index: 8
       }
@@ -637,7 +627,7 @@
         position: absolute;
         left: 6px;
         top: 6px;
-        font: 10px/1 Inter, sans-serif;
+        font: 10px/1 var(--font-family);
         color: rgba(255, 255, 255, .82)
       }
 
@@ -666,7 +656,7 @@
       .master-grid {
         align-content: stretch;
         padding-top: var(--master-top);
-        padding-bottom: var(--fb)
+        padding-bottom: var(--section-padding-bottom)
       }
 
       .case-stage__frame {
@@ -675,10 +665,10 @@
         align-content: start;
         position: absolute;
         top: var(--master-top);
-        bottom: var(--fb);
+        bottom: var(--section-padding-bottom);
         left: 50%;
         transform: translateX(-50%);
-        width: min(calc(100% - 2*var(--fx)), calc(1440px - 2*var(--fx)));
+        width: min(calc(100% - 2*var(--grid-padding)), calc(var(--grid-max-width) - 2*var(--grid-padding)));
         overflow-y: auto;
         overflow-x: hidden;
         padding-inline: 0
@@ -772,8 +762,8 @@
         grid-column: 7/span 6;
         grid-row: 2/span 2;
         grid-template-columns: repeat(6, 1fr);
-        grid-template-rows: repeat(4, minmax(0, 1fr));
-        gap: var(--g)
+        grid-template-rows: repeat(var(--grid-rows), minmax(0, 1fr));
+        gap: var(--grid-gap)
       }
 
       .clients-grid>div {
@@ -792,7 +782,7 @@
         align-self: start;
         justify-self: start;
         width: 100%;
-        gap: var(--g)
+        gap: var(--grid-gap)
       }
 
       .case-card {
@@ -1034,7 +1024,7 @@
 
       .case-col__title {
         line-height: 1.2;
-        margin-bottom: calc(var(--g)/2);
+        margin-bottom: calc(var(--grid-gap)/2);
         color: var(--text)
       }
 
@@ -1053,7 +1043,7 @@
         align-items: start;
         justify-items: start;
         grid-template-columns: repeat(6, minmax(0, 1fr));
-        column-gap: var(--g);
+        column-gap: var(--grid-gap);
         transition-delay: .32s
       }
 
@@ -1106,8 +1096,9 @@
         display: none
       }
 
+      .case-col__text,
       .case-stage__body,
-      .case-stage__body * {
+      .case-stage__body p {
         hyphens: auto;
         -webkit-hyphens: auto;
         -moz-hyphens: auto;
@@ -1120,16 +1111,15 @@
       }
 
       .case-stage__body {
-        text-align: justify;
+        text-align: left;
         orphans: 2;
         widows: 2;
       }
 
       .case-stage__body p {
         margin: 0 0 var(--space-block) 0;
-        text-wrap: balance;
         text-wrap: pretty;
-        text-align: justify;
+        text-align: left;
       }
 
       @supports (text-box-trim:trim-start) {
@@ -1166,7 +1156,7 @@
 
       @media (max-width: 1024px) {
         :root {
-          --g: 12px;
+          --grid-gap: 12px;
           --master-top: 90px;
         }
 
@@ -1209,14 +1199,15 @@
 
       @media (max-width: 768px) {
         :root {
-          --g: 10px;
+          --grid-columns: 6;
+          --grid-gap: 10px;
           --master-top: 70px;
-          --nh: 38px;
+          --nav-height: 38px;
           --reveal-y: 14px;
         }
 
         .section-grid, nav, .menu__inner, .case-stage__frame, .master-grid, .dev-cols {
-          grid-template-columns: repeat(6, minmax(0, 1fr));
+          grid-template-columns: repeat(var(--grid-columns), minmax(0, 1fr));
         }
 
         .case-stage__frame, .master-grid, .dev-rows {
@@ -1326,19 +1317,20 @@
 
         .master-grid {
           grid-template-rows: auto;
-          gap: var(--g);
+          gap: var(--grid-gap);
         }
       }
 
       @media (max-width: 480px) {
         :root {
-          --g: 8px;
+          --grid-columns: 4;
+          --grid-gap: 8px;
           --master-top: 60px;
-          --nh: 34px;
+          --nav-height: 34px;
         }
 
         .section-grid, nav, .menu__inner, .case-stage__frame, .master-grid, .dev-cols {
-          grid-template-columns: repeat(4, minmax(0, 1fr));
+          grid-template-columns: repeat(var(--grid-columns), minmax(0, 1fr));
         }
 
         .grid-anchor-start, .services-label {
@@ -1407,13 +1399,12 @@
       .hero-copy,
       .card-desc,
       .team-note,
-      .case-col__text,
       .case-stat__label,
       .contact-cta__title {
         word-break: normal;
-        overflow-wrap: break-word;
-        -webkit-hyphens: auto;
-        hyphens: auto;
+        overflow-wrap: normal;
+        -webkit-hyphens: none;
+        hyphens: none;
         text-wrap: pretty;
         orphans: 2;
         widows: 2;
@@ -1427,10 +1418,14 @@
         text-wrap: balance;
         word-break: normal;
         overflow-wrap: normal;
+        -webkit-hyphens: none;
         hyphens: none;
       }
 
       .case-col__text {
         text-align: left;
+        overflow-wrap: break-word;
+        -webkit-hyphens: auto;
+        hyphens: auto;
         text-justify: inter-word;
       }
