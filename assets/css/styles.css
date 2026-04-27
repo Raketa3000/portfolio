@@ -259,15 +259,29 @@
       }
 
       .hero-copy,
+      .trim-inter,
       .card-desc,
       .contact-cta__title,
       .contact-cta__email,
       .team-note,
       .case-col__text,
+      .case-stage__body,
+      .case-stage__body p,
       .case-stat__label {
         font: var(--font-body);
         line-height: 1.2;
-        color: var(--text)
+        color: var(--text);
+        text-wrap: balance;
+        text-wrap: pretty;
+        -webkit-hyphens: auto;
+        -moz-hyphens: auto;
+        hyphens: auto;
+        overflow-wrap: break-word;
+        word-break: normal;
+        line-break: strict;
+        hyphenate-limit-chars: 4 3 2;
+        hyphenate-limit-lines: 2;
+        hyphenate-limit-zone: 8%;
       }
 
       .case-cat,
@@ -1110,7 +1124,14 @@
         hyphens: auto;
         -webkit-hyphens: auto;
         -moz-hyphens: auto;
-        word-wrap: break-word;
+        text-wrap: balance;
+        text-wrap: pretty;
+        overflow-wrap: break-word;
+        word-break: normal;
+        line-break: strict;
+        hyphenate-limit-chars: 4 3 2;
+        hyphenate-limit-lines: 2;
+        hyphenate-limit-zone: 8%;
         text-align: justify;
       }
 
