@@ -449,7 +449,7 @@
             if (next !== 's0') {
               clear('heroIntro');
               clear('heroSecondLine')
-            } else if (!S.heroMenuPlayed) scheduleHero()
+            } else if (!S.heroMenuPlayed) scheduleHero();
           }
 
           function step(dir) {
@@ -777,6 +777,6 @@
           updateMaster();
           syncUiState();
           go('s0', false);
-          scheduleHero()
-;
+          scheduleHero();
+        });
 })();
