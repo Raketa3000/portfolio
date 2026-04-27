@@ -1,4 +1,4 @@
-      (function() {
+(function() {
         addEventListener('DOMContentLoaded', function() {
           var $ = function(s, r) {
               return (r || document).querySelector(s)
