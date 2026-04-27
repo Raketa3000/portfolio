@@ -1095,6 +1095,25 @@
         display: none
       }
 
+      .case-stage__body {
+        hyphens: auto;
+        -webkit-hyphens: auto;
+        -moz-hyphens: auto;
+        word-wrap: break-word;
+        text-align: justify;
+        orphans: 2;
+        widows: 2;
+      }
+
+      .case-stage__body p {
+        margin: 0 0 var(--space-block) 0;
+        hyphens: auto;
+        -webkit-hyphens: auto;
+        -moz-hyphens: auto;
+        word-wrap: break-word;
+        text-align: justify;
+      }
+
       @supports (text-box-trim:trim-start) {
 
         .heading,
