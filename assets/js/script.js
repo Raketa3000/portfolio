@@ -27,10 +27,14 @@
               stage: $('#case-stage'),
               close: $('#case-stage-close'),
               bodyPane: $('#case-stage-body'),
-              stats: $('#case-stage-stats'),
+              mediaCursor: null,
               cat: $('#cs-cat'),
               brand: $('#cs-brand'),
               title: $('#cs-title'),
+              baClock: $('#ba-clock'),
+              mskClock: $('#msk-clock'),
+              baStatus: $('#ba-status'),
+              mskStatus: $('#msk-status'),
               cards: []
             };
           if (!E.w || !E.secs.length) return;
@@ -44,7 +48,7 @@
               }, {
                 title: ['Атака титанов']
               }, {
-                title: ['Презервативы']
+                title: ['Стратегия для бренда', 'презервативов <span class="case-title-redact" aria-label="замазано"></span>']
               }],
               screens: {
                 s0: {
@@ -96,6 +100,8 @@
               casesPromise: null,
               heroWords: ['ПРОБОВАТЬ', 'СМОТРЕТЬ', 'ИСКАТЬ', 'ПОКУПАТЬ'],
               contactWords: ['СТРАТЕГИЮ', 'КРЕАТИВ', 'ПРОЕКТ', 'КАМПАНИЮ'],
+              contactIntroDelayMs: 1600,
+              contactLoopStartDelayMs: 2000,
               glyphs: 'АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯABCDEFGHIJKLMNOPQRSTUVWXYZ',
               heroIntroDelayMs: 1600,
               heroLoopStartDelayMs: 2000,
@@ -116,6 +122,7 @@
               wheel: 0,
               contactWord: 0,
               revealed: {},
+              clientCountsPlayed: false,
               heroMenuPlayed: false,
               overlay: {
                 open: false,
@@ -124,8 +131,7 @@
               ui: {
                 dev: false
               }
-            },
-            measureCache = {};
+            };
           var ids = E.secs.map(function(s) {
               return s.id
             }),
@@ -157,32 +163,94 @@
               return 'assets/cases/' + v + '.json'
             };
 
-          function nbsp(s) {
+          function whenFontsReady(fn) {
+            if (!document.fonts || !document.fonts.ready) {
+              fn();
+              return
+            }
+            document.fonts.ready.then(fn, fn)
+          }
+
+          function cssNumber(name, fallback) {
+            var value = parseFloat(getComputedStyle(E.root).getPropertyValue(name));
+            return Number.isFinite(value) ? value : fallback
+          }
+
+          function gridColumnCount() {
+            var fallback = 12;
+            if (matchMedia('(max-width: 480px)').matches) fallback = cssNumber('--grid-columns-mobile', 4);
+            else if (matchMedia('(max-width: 768px)').matches) fallback = cssNumber('--grid-columns-tablet', 6);
+            else fallback = cssNumber('--grid-columns-desktop', 12);
+            return Math.max(1, Math.round(cssNumber('--grid-columns', fallback)))
+          }
+
+          function gridGap() {
+            var fallback = 20;
+            if (matchMedia('(max-width: 480px)').matches) fallback = cssNumber('--grid-gap-mobile', 8);
+            else if (matchMedia('(max-width: 768px)').matches) fallback = cssNumber('--grid-gap-tablet', 10);
+            else fallback = cssNumber('--grid-gap-desktop', 20);
+            return cssNumber('--grid-gap', fallback)
+          }
+
+          function gridTracks(count) {
+            return Array.apply(null, Array(count)).map(function(_, i) {
+              return '<div data-i="' + (i + 1) + '"></div>'
+            }).join('')
+          }
+
+          function typographText(s) {
             var a = s.split(' '),
               o = [],
               i = 0,
-              w, n, t =
-              ',а,и,к,с,у,о,в,я,ты,мы,вы,он,но,не,ни,на,по,из,от,до,во,со,ко,за,под,над,об,без,для,при,про,или,как,так,это,эта,этот,эти,того,чем,тем,что,чтоб,чтобы,все,всё,еще,ещё,уже,где,где-то,там,тут,вот,ведь,бы,же,ли,либо,его,её,ее,их,ей,ему,нас,вас,наш,ваш,мой,твой,свой,кто,вся,всех,между,через,перед,после,около,среди,ради,вдоль,насчёт,вместо,помимо,кроме,также,тоже,'
-              .toLowerCase();
+              w, n,
+              t =
+              ',а,и,к,с,у,о,в,я,ты,мы,вы,он,она,оно,они,но,не,ни,на,по,из,от,до,во,со,ко,за,под,над,об,без,для,при,про,или,как,так,это,эта,этот,эти,тот,та,то,те,того,чем,тем,что,чтоб,чтобы,все,всё,еще,ещё,уже,где,где-то,там,тут,вот,ведь,бы,же,ли,либо,его,её,ее,их,ей,ему,им,меня,тебя,себя,мне,тебе,нам,вам,нас,вас,наш,ваш,мой,твой,свой,кто,вся,всех,между,через,перед,после,около,среди,ради,вдоль,насчёт,вместо,помимо,кроме,также,тоже,ну,ах,ох,ой,эй,эх,ух,ого,ага,угу,вау,'
+              .toLowerCase(),
+              key = function(v) {
+                return String(v).toLowerCase().replace(/^[«„“”"'([{]+|[.,:;!?…»“”"')\]}]+$/g, '')
+              },
+              tightNext = /^(?:[%A-Za-zА-Яа-яЁё₽€$]|№|лет|года|год|дней|дня|день|часов|часа|час|минут|минуты|минута|секунд|секунды|секунда|раз|раза|разов|тыс|млн|млрд)/i,
+              result;
             for (; i < a.length; i++) {
               w = a[i];
               n = a[i + 1];
               if (!w) continue;
-              if (i < a.length - 1 && ((t.indexOf(',' + w.toLowerCase() + ',') > -1) || (/^[0-9]+$/.test(w) &&
-                  /^(?:[%A-Za-zА-Яа-яЁё₽€$]|№)/.test(n)) || (w.length <= 2 && /^[А-Яа-яЁё]/.test(w)))) o.push(w + String.fromCharCode(160) + a[++i]);
+              if (i < a.length - 1 && ((t.indexOf(',' + key(w) + ',') > -1) || (/^[0-9]+$/.test(key(w)) &&
+                  /^[«„“”"'([{]*/.test(n) && tightNext.test(key(n))) || (key(w).length <= 2 &&
+                  /^[«„“”"'([{]*[А-Яа-яЁё]/.test(n)))) o.push(w + String.fromCharCode(160) + a[++i]);
               else o.push(w)
             }
-            return o.join(' ')
+            result = o.join(' ');
+            return result.replace(/\s+-\s+/g, String.fromCharCode(160) + '— ')
+          }
+
+          function nbsp(s) {
+            return typographText(s)
           }
 
           function walk(n) {
             for (var i = 0, c; i < n.childNodes.length; i++)
-              if ((c = n.childNodes[i]).nodeType === 3) c.nodeValue = nbsp(c.nodeValue);
+              if ((c = n.childNodes[i]).nodeType === 3) c.nodeValue = typographText(c.nodeValue);
               else if (c.nodeType === 1 && c.tagName !== 'SCRIPT' && c.tagName !== 'STYLE') walk(c)
           }
 
           function fmt(s) {
-            return escapeHtml(nbsp(String(s))).replace(/ /g, '&nbsp;')
+            return escapeHtml(typographText(String(s))).replace(/\n/g, '<br>').replace(/ /g, '&nbsp;').replace(/\[redact:5\]/g,
+              '<span class="case-title-redact" aria-label="замазано"></span>')
+          }
+
+          function fmtCasePreviewTitle(s) {
+            return escapeHtml(typographText(String(s))).replace(/ /g, '&nbsp;').replace(/&lt;span class=&quot;case-title-redact&quot; aria-label=&quot;замазано&quot;&gt;&lt;\/span&gt;/g,
+              '<span class="case-title-redact" aria-label="замазано"></span>')
+          }
+
+          function hyphenateCaseText() {
+            var H = window.Hyphenopoly;
+            if (!H || !H.hyphenators || !H.hyphenators.HTML) return;
+            H.hyphenators.HTML.then(function(hyphenateHTML) {
+              hyphenateHTML(E.bodyPane, '.case-col__text');
+              scheduleCaseFit()
+            })
           }
 
           function syncUiState() {
@@ -194,8 +262,7 @@
             E.body.setAttribute('data-overlay', open ? 'open' : 'closed');
             E.body.setAttribute('data-dev', S.ui.dev ? 'on' : 'off');
             if (E.stage) {
-              E.stage.setAttribute('data-overlay', open ? 'open' : 'closed');
-              E.stage.setAttribute('data-stats', E.stage.classList.contains('no-stats') ? 'off' : 'on')
+              E.stage.setAttribute('data-overlay', open ? 'open' : 'closed')
             }
           }
 
@@ -203,7 +270,7 @@
             if (!E.grid) return;
             E.grid.innerHTML = SITE_DATA.previews.map(function(x, i) {
               var title = x.title.map(function(line) {
-                return '<span class="case-title__line">' + escapeHtml(line) + '</span>'
+                return '<span class="case-title__line">' + fmtCasePreviewTitle(line) + '</span>'
               }).join('');
               return '<article class="case-card fu' + (i ? ' td-' + i : '') + '" data-case-index="' + i +
                 '"><div class="case-title heading">' + title + '</div></article>'
@@ -229,6 +296,20 @@
               brand: item.brand || '',
               title: item.title || '',
               detail: normalizedDetail,
+              media: Array.isArray(item.media) ? item.media.filter(function(media) {
+                return media && typeof media === 'object' && (media.src || media.sources || media.html)
+              }).map(function(media) {
+                return {
+                  type: media.type || 'image',
+                  src: media.src || '',
+                  sources: Array.isArray(media.sources) ? media.sources : [],
+                  poster: media.poster || '',
+                  alt: media.alt || item.title || '',
+                  caption: media.caption || '',
+                  fit: media.fit || 'contain',
+                  html: media.html || ''
+                }
+              }) : [],
               stats: Array.isArray(item.stats) ? item.stats : []
             }
           }
@@ -300,6 +381,8 @@
             clear('heroSecondLine');
             clear('heroLoopTicker', true);
             clear('contactLoopTicker', true);
+            clear('contactIntro');
+            clear('contactSecondLine');
             E.heroA && E.heroA.classList.remove('off', 'hide');
             if (E.heroB) {
               E.heroB.classList.remove('off', 'hide');
@@ -308,6 +391,17 @@
             if (E.heroLoop) {
               E.heroLoop.classList.remove('on');
               txt(E.heroLoop, '')
+            }
+            var contactA = $('#contact-a'),
+              contactB = $('#contact-b');
+            contactA && contactA.classList.remove('off', 'hide');
+            if (contactB) {
+              contactB.classList.remove('off', 'hide');
+              contactB.classList.add('hide')
+            }
+            if (E.contactLoop) {
+              E.contactLoop.classList.remove('on');
+              txt(E.contactLoop, '')
             }
             E.heroFly.forEach(function(el) {
               el.classList.remove('on')
@@ -347,9 +441,13 @@
           function setMenu(stacked) {
             if (!E.menu || !E.menuIn || E.menuItems.length !== 4) return;
             var width = E.menuIn.getBoundingClientRect().width,
-              gap = parseFloat(getComputedStyle(E.root).getPropertyValue('--g')) || 20,
-              col = (width - 11 * gap) / 12,
-              lefts = [0, 3, 6, 9].map(function(i) {
+              cols = gridColumnCount(),
+              gap = gridGap(),
+              col = (width - (cols - 1) * gap) / cols,
+              lefts = E.menuItems.map(function(_, i) {
+                if (cols >= 12) return i * 3;
+                return Math.round(i * (cols - 1) / (E.menuItems.length - 1))
+              }).map(function(i) {
                 return i * (col + gap)
               }),
               clamp = function(x, w) {
@@ -374,10 +472,8 @@
           }
 
           function updateMaster() {
-            var hero = $('#s0'),
-              btn = $('.menu__item[data-target="s1"]');
-            if (hero && btn) E.root.style.setProperty('--master-top', Math.max(0, btn.getBoundingClientRect()
-              .top - hero.getBoundingClientRect().top) + 'px')
+            var btn = $('.menu__item[data-target="s1"]');
+            if (btn) E.root.style.setProperty('--master-top', Math.max(0, btn.getBoundingClientRect().top) + 'px')
           }
 
           function animateMenu() {
@@ -405,13 +501,85 @@
                 el.classList.add('on')
               }, i * delay)
             });
+            if (id === 's1-2') animateClientCounts();
             if (id === 's3' && !T.contactLoopTicker) {
-              animateScramble(E.contactLoop, D.contactWords[0], 'contactScramble');
+              startContactLoop()
+            }
+          }
+
+          function startContactLoop() {
+            var first = $('#contact-a'),
+              second = $('#contact-b');
+            if (!E.contactLoop || T.contactLoopTicker) return;
+            clear('contactIntro');
+            clear('contactSecondLine');
+            first && first.classList.remove('off', 'hide');
+            if (second) {
+              second.classList.remove('off', 'hide');
+              second.classList.add('hide')
+            }
+            E.contactLoop.classList.remove('on');
+            S.contactWord = 0;
+            txt(E.contactLoop, D.contactWords[S.contactWord] || '');
+            T.contactIntro = setTimeout(function() {
+              first && first.classList.add('off');
+              second && second.classList.remove('hide')
+            }, D.contactIntroDelayMs);
+            T.contactSecondLine = setTimeout(function() {
+              E.contactLoop.classList.add('on');
+              S.contactWord = (S.contactWord + 1) % D.contactWords.length;
+              animateScramble(E.contactLoop, D.contactWords[S.contactWord], 'contactScramble');
               T.contactLoopTicker = setInterval(function() {
                 S.contactWord = (S.contactWord + 1) % D.contactWords.length;
                 animateScramble(E.contactLoop, D.contactWords[S.contactWord], 'contactScramble')
               }, D.loopMs)
-            }
+            }, D.contactLoopStartDelayMs)
+          }
+
+          function setupClientCounts() {
+            $$('.client-item sup').forEach(function(el) {
+              var value = parseInt(el.textContent.replace(/\D/g, ''), 10);
+              if (!Number.isFinite(value)) return;
+              el.setAttribute('data-count-target', String(value));
+              el.innerHTML = '(<span class="client-count__digit">0</span>)'
+            })
+          }
+
+          function animateClientCounts() {
+            if (S.clientCountsPlayed) return;
+            S.clientCountsPlayed = true;
+            var items = $$('.client-item sup'),
+              reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+            items.forEach(function(el, i) {
+              var target = parseInt(el.getAttribute('data-count-target') || '0', 10),
+                digit = $('.client-count__digit', el),
+                duration = 1150 + Math.random() * 350,
+                delay = i * 55;
+              if (!digit) return;
+              if (reduce) {
+                txt(digit, target);
+                return
+              }
+              setTimeout(function() {
+                var t0 = performance.now(),
+                  lastSlot = -1,
+                  shown = 0;
+                txt(digit, 0);
+
+                function tick(now) {
+                  var p = Math.min(1, (now - t0) / duration),
+                    slot = Math.floor((now - t0) / 55);
+                  if (slot !== lastSlot) {
+                    lastSlot = slot;
+                    shown = p < .9 ? Math.floor(Math.random() * 11) : target;
+                    txt(digit, shown)
+                  }
+                  if (p < 1) requestAnimationFrame(tick);
+                  else txt(digit, target)
+                }
+                requestAnimationFrame(tick)
+              }, delay)
+            })
           }
 
           function updateNav() {
@@ -463,8 +631,11 @@
           }
 
           function buildCaseFlow(item) {
-            var blocks = Array.isArray(item.detail && item.detail.blocks) ? item.detail.blocks : null;
-            if (blocks && blocks.length) return blocks.map(function(block) {
+            var blocks = Array.isArray(item.detail && item.detail.blocks) ? item.detail.blocks : null,
+              hasStats = !!(item.stats && item.stats.length),
+              flow;
+            if (blocks && blocks.length) {
+              flow = blocks.map(function(block) {
               var blockId = block.id || block.type || 'custom';
               return {
                 text: block.text || '',
@@ -472,131 +643,56 @@
                 title: block.title || SITE_DATA.fieldTitles[blockId] || blockId,
                 wide: block.wide === true
               }
-            }).filter(function(block) {
-              return block.text
-            });
-            return SITE_DATA.layout.flowOrder.map(function(id) {
+              }).filter(function(block) {
+                return block.text || (block.id === 'result' && hasStats)
+              })
+            } else {
+              flow = SITE_DATA.layout.flowOrder.map(function(id) {
               var text = item.detail && item.detail[id];
-              return text ? {
+              return text || (id === 'result' && hasStats) ? {
                 id: id,
                 title: SITE_DATA.fieldTitles[id] || id,
                 text: text,
                 wide: id === 'solution' && (item.title === 'Это вышка' || item.title ===
                   'Кибербитва с мошенниками')
               } : null
-            }).filter(Boolean)
+              }).filter(Boolean)
+            }
+            if (hasStats && !flow.some(function(block) { return block.id === 'result' })) {
+              flow.push({
+                id: 'result',
+                title: SITE_DATA.fieldTitles.result,
+                text: '',
+                wide: false
+              })
+            }
+            return flow
           }
 
-          function renderSegments(segments) {
-            return segments.map(function(seg) {
-              return '<div class="case-col__segment"><div class="case-col__title trim-inter">' + fmt(seg
-                .title) + '</div><div class="case-col__text trim-inter">' + fmt(seg.text) + '</div></div>'
+          function renderAccordion(flow, stats) {
+            return flow.map(function(seg, i) {
+              var num = String(i + 1).padStart(2, '0'),
+                hasStats = seg.id === 'result' && stats.length,
+                body = (seg.text ? '<div class="case-col__text trim-inter">' + fmt(seg.text) + '</div>' : '') +
+                  (hasStats ? '<div class="case-stage__stats" data-stats="on">' + renderStats(stats) + '</div>' : '');
+              return '<div class="case-disclosure' + (i === 0 ? ' is-open' : '') +
+                '"><button class="case-disclosure__toggle trim-inter" type="button" aria-expanded="' + (i === 0 ?
+                  'true' : 'false') + '"><span class="case-disclosure__head"><span class="case-disclosure__num">' +
+                num + '</span><span class="case-disclosure__title">' + fmt(seg.title) +
+                '</span></span><span class="case-disclosure__mark" aria-hidden="true"></span></button><div class="case-disclosure__panel">' +
+                '<div class="case-disclosure__inner">' + body + '</div></div></div>'
             }).join('')
           }
 
-          function measureCaseBlockWide(seg) {
-            if (seg.wide === true) return true;
-            if (seg.wide === false) return false;
-            var frame = E.stage && E.stage.querySelector('.case-stage__frame');
-            if (!frame) return (seg.text || '').length > SITE_DATA.layout.fallbackWideChars;
-            var frameWidth = Math.round(frame.getBoundingClientRect().width || 0),
-              cacheKey = [S.overlay.caseIndex, frameWidth, seg.id].join('|');
-            if (measureCache[cacheKey] != null) return measureCache[cacheKey];
-            var probe = document.createElement('div'),
-              gap = parseFloat(getComputedStyle(E.root).getPropertyValue('--g')) || 20,
-              colWidth = (frameWidth - 11 * gap) / 12,
-              halfWidth = 3 * colWidth + 2 * gap;
-            probe.className = 'case-col';
-            probe.style.cssText =
-              'position:absolute;visibility:hidden;pointer-events:none;left:-9999px;top:0;width:' + halfWidth +
-              'px;min-width:0;max-width:none';
-            probe.innerHTML = renderSegments([seg]);
-            frame.appendChild(probe);
-            measureCache[cacheKey] = probe.getBoundingClientRect().height > SITE_DATA.layout.wideHeightThreshold;
-            probe.remove();
-            return measureCache[cacheKey]
-          }
-
-          function measureCaseFlow(flow) {
-            return flow.map(function(seg) {
-              return {
-                id: seg.id,
-                title: seg.title,
-                text: seg.text,
-                wide: measureCaseBlockWide(seg)
-              }
-            })
-          }
-
-          function placeCaseFlow(flow) {
-            var placed = [],
-              states = SITE_DATA.layout.zones.map(function(z) {
-                return {
-                  row: z.startRow,
-                  col: 0
-                }
-              }),
-              zoneIndex = 0,
-              lastRow = 1;
-            flow.forEach(function(seg) {
-              var wide = !!seg.wide,
-                zone = SITE_DATA.layout.zones[zoneIndex],
-                state = states[zoneIndex],
-                currentRow, gridColumn;
-              while (zone && state.row > zone.endRow) {
-                zoneIndex++;
-                zone = SITE_DATA.layout.zones[zoneIndex];
-                state = states[zoneIndex]
-              }
-              if (!zone) return;
-              if (wide && state.col === 1) {
-                state.row++;
-                state.col = 0;
-                while (zone && state.row > zone.endRow) {
-                  zoneIndex++;
-                  zone = SITE_DATA.layout.zones[zoneIndex];
-                  state = states[zoneIndex]
-                }
-              }
-              if (!zone) return;
-              currentRow = state.row;
-              if (wide) {
-                gridColumn = zone.wide;
-                state.row++;
-                state.col = 0
-              } else {
-                gridColumn = zone.half[state.col];
-                if (state.col === 0) state.col = 1;
-                else {
-                  state.col = 0;
-                  state.row++
-                }
-              }
-              lastRow = Math.max(lastRow, currentRow);
-              placed.push({
-                seg: seg,
-                row: currentRow,
-                col: gridColumn,
-                wide: wide
-              })
-            });
-            return {
-              placed: placed,
-              lastRow: lastRow
-            }
-          }
-
-          function renderPlacedFlow(placed) {
-            var frag = document.createDocumentFragment();
-            placed.forEach(function(p) {
-              var col = document.createElement('div');
-              col.className = 'case-col' + (p.wide ? ' is-wide' : '');
-              col.style.setProperty('--gc', p.col);
-              col.style.setProperty('--gr', String(p.row));
-              col.innerHTML = renderSegments([p.seg]);
-              frag.appendChild(col)
-            });
-            return frag
+          function renderCaseAccordion(flow, stats) {
+            var wrap = document.createElement('div'),
+              cols = gridColumnCount(),
+              compact = cols <= 6;
+            wrap.className = 'case-accordion';
+            wrap.style.setProperty('--gc', compact ? '1/span ' + cols : '1/span 6');
+            wrap.style.setProperty('--gr', compact ? '3' : '2');
+            wrap.innerHTML = renderAccordion(flow, stats);
+            return wrap
           }
 
           function renderStatLabel(label) {
@@ -605,28 +701,171 @@
             }).join('<br>')
           }
 
+          function renderStatValue(value) {
+            return escapeHtml(value).replace(/([+-]?\d+(?:[.,]\d+)?)/g, function(match) {
+              return '<span class="case-stat__number" data-stat-target="' + match + '" data-stat-animated="off">0</span>'
+            })
+          }
+
           function renderStats(stats) {
             return stats.map(function(pair) {
-              return '<div class="case-stat"><div class="case-stat__value trim-inter">' + escapeHtml(pair[
-                0]) + '</div><div class="case-stat__label trim-inter">' + renderStatLabel(pair[1]) +
+              return '<div class="case-stat"><div class="case-stat__value trim-inter">' + renderStatValue(String(pair[
+                0])) + '</div><div class="case-stat__label trim-inter">' + renderStatLabel(pair[1]) +
                 '</div></div>'
             }).join('')
+          }
+
+          function setDisclosureOpen(disclosure, open, userAction) {
+            if (!disclosure) return;
+            disclosure.classList.toggle('is-open', open);
+            if (userAction) disclosure.classList.toggle('is-user-closed', !open);
+            var btn = disclosure.querySelector('.case-disclosure__toggle');
+            if (btn) btn.setAttribute('aria-expanded', String(open));
+            if (open) animateCaseStats(disclosure)
+          }
+
+          function fitCaseAccordion(protectedDisclosure) {
+            if (!S.overlay.open || !E.stage) return;
+            var frame = E.stage.querySelector('.case-stage__frame'),
+              accordion = E.bodyPane && E.bodyPane.querySelector('.case-accordion');
+            if (!frame || !accordion) return;
+            var frameBox = frame.getBoundingClientRect(),
+              accordionBox = accordion.getBoundingClientRect();
+            if (accordionBox.bottom <= frameBox.bottom + 1) return;
+            var openItems = $$('.case-disclosure.is-open', accordion),
+              firstOpen = openItems[0],
+              target = firstOpen;
+            if (!target) return;
+            if (firstOpen === protectedDisclosure) {
+              target = openItems.slice().reverse().find(function(item) {
+                return item !== protectedDisclosure
+              })
+            }
+            if (!target) return;
+            setDisclosureOpen(target, false, false)
+          }
+
+          function scheduleCaseFit(protectedDisclosure) {
+            if (T.caseFit) cancelAnimationFrame(T.caseFit);
+            T.caseFit = requestAnimationFrame(function() {
+              T.caseFit = null;
+              fitCaseAccordion(protectedDisclosure)
+            })
+          }
+
+          function scheduleCaseFitAfterMotion(protectedDisclosure) {
+            if (T.caseFitMotion) clearTimeout(T.caseFitMotion);
+            T.caseFitMotion = setTimeout(function() {
+              T.caseFitMotion = null;
+              fitCaseAccordion(protectedDisclosure)
+            }, 260)
+          }
+
+          function animateCaseStats(root) {
+            var items = $$('.case-stat__number[data-stat-animated="off"]', root || E.bodyPane),
+              reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+            items.forEach(function(el, i) {
+              var target = el.getAttribute('data-stat-target') || '0',
+                numericTarget = parseFloat(target.replace(',', '.')),
+                decimals = (target.split(/[.,]/)[1] || '').length,
+                hasSign = /^[+-]/.test(target),
+                sign = hasSign ? target.charAt(0) : '',
+                duration = 900 + Math.random() * 300,
+                delay = i * 65;
+              if (!Number.isFinite(numericTarget)) return;
+              el.setAttribute('data-stat-animated', 'on');
+              if (reduce) {
+                txt(el, target);
+                return
+              }
+              setTimeout(function() {
+                var t0 = performance.now(),
+                  lastSlot = -1;
+                txt(el, hasSign ? sign + '0' : '0');
+
+                function tick(now) {
+                  var p = Math.min(1, (now - t0) / duration),
+                    slot = Math.floor((now - t0) / 55),
+                    shown;
+                  if (slot !== lastSlot) {
+                    lastSlot = slot;
+                    shown = p < .9 ? Math.random() * numericTarget : numericTarget;
+                    shown = decimals ? shown.toFixed(decimals) : String(Math.round(shown));
+                    if (target.indexOf(',') > -1) shown = shown.replace('.', ',');
+                    txt(el, hasSign && shown.charAt(0) !== sign ? sign + shown.replace(/^[+-]/, '') : shown)
+                  }
+                  if (p < 1) requestAnimationFrame(tick);
+                  else txt(el, target)
+                }
+                requestAnimationFrame(tick)
+              }, delay)
+            })
+          }
+
+          function renderMediaItem(media) {
+            var cls = 'case-media__item case-media__item--' + (media.type === 'video' ? 'video' : 'image'),
+              fit = media.fit === 'cover' ? 'cover' : 'contain',
+              src = escapeHtml(media.src || '');
+            if (media.html) {
+              return '<figure class="' + cls + '" data-fit="' + fit + '"><div class="case-media__embed">' +
+                media.html + '</div></figure>'
+            }
+            if (media.type === 'video') {
+              var sources = media.sources.length ? media.sources.map(function(source) {
+                return '<source src="' + escapeHtml(source.src || '') + '"' + (source.type ? ' type="' +
+                  escapeHtml(source.type) + '"' : '') + '>'
+              }).join('') : (src ? '<source src="' + src + '">' : '');
+              return '<figure class="' + cls + '" data-fit="' + fit +
+                '"><video autoplay muted loop playsinline preload="metadata"' + (media.poster ? ' poster="' +
+                  escapeHtml(media.poster) + '"' : '') + '>' + sources + '</video></figure>'
+            }
+            return '<figure class="' + cls + '" data-fit="' + fit + '"><img src="' + src + '" alt="' +
+              escapeHtml(media.alt || '') + '" loading="lazy"></figure>'
+          }
+
+          function renderMedia(media) {
+            if (!media.length) return null;
+            var wrap = document.createElement('div'),
+              cols = gridColumnCount(),
+              compact = cols <= 6;
+            wrap.className = 'case-media';
+            wrap.style.setProperty('--gc', compact ? '1/span ' + cols : '7/span 6');
+            wrap.style.setProperty('--gr', '1');
+            wrap.innerHTML = media.map(renderMediaItem).join('');
+            return wrap
+          }
+
+          function ensureMediaCursor() {
+            if (E.mediaCursor) return E.mediaCursor;
+            E.mediaCursor = document.createElement('div');
+            E.mediaCursor.className = 'media-scroll-cursor';
+            E.mediaCursor.setAttribute('aria-hidden', 'true');
+            E.mediaCursor.innerHTML =
+              '<span class="media-scroll-cursor__chevron"></span><span class="media-scroll-cursor__chevron"></span><span class="media-scroll-cursor__chevron"></span>';
+            E.body.appendChild(E.mediaCursor);
+            return E.mediaCursor
+          }
+
+          function moveMediaCursor(e) {
+            var cursor = ensureMediaCursor();
+            cursor.style.setProperty('--x', e.clientX + 'px');
+            cursor.style.setProperty('--y', e.clientY + 'px')
           }
 
           function renderCase(i) {
             var item = D.cases[i];
             if (!item) return;
-            var measured = measureCaseFlow(buildCaseFlow(item)),
-              layout = placeCaseFlow(measured),
-              statsRow = Math.max(4, layout.lastRow + 1);
-            cls(E.stage, 'no-stats', !item.stats.length);
+            var flow = buildCaseFlow(item),
+              hasMedia = item.media && item.media.length;
+            cls(E.stage, 'has-media', !!hasMedia);
             html(E.cat, fmt(item.cat || ''));
             html(E.brand, fmt((item.brand || '').replace('Burger King', 'Бургер Кинг')));
             html(E.title, fmt(item.title || ''));
             E.bodyPane.innerHTML = '';
-            E.bodyPane.appendChild(renderPlacedFlow(layout.placed));
-            E.stats.style.gridRow = String(statsRow);
-            html(E.stats, renderStats(item.stats || []));
+            if (hasMedia) E.bodyPane.appendChild(renderMedia(item.media));
+            E.bodyPane.appendChild(renderCaseAccordion(flow, item.stats || []));
+            hyphenateCaseText();
+            scheduleCaseFit();
             syncUiState()
           }
 
@@ -658,20 +897,16 @@
             E.cards.forEach(function(card) {
               card.classList.remove('is-active')
             });
-            E.stage.classList.remove('no-stats');
             toggleStage(false)
           }
 
           function injectDev() {
             if (E.body.getAttribute('data-dev-ready')) return;
             E.body.setAttribute('data-dev-ready', '1');
-            var colsMarkup = Array.apply(null, Array(12)).map(function(_, i) {
-                return '<div data-i="' + (i + 1) + '"></div>'
-              }).join(''),
-              rowsMarkup = Array.apply(null, Array(4)).map(function(_, i) {
+            var rowsMarkup = Array.apply(null, Array(4)).map(function(_, i) {
                 return '<div data-r="' + (i + 1) + '"></div>'
               }).join(''),
-              markup = '<div class="dev-cols">' + colsMarkup + '</div><div class="dev-rows">' + rowsMarkup +
+              markup = '<div class="dev-cols"></div><div class="dev-rows">' + rowsMarkup +
               '</div>',
               appendFrame = function(host) {
                 if (!host || host.querySelector(':scope > .dev-frame')) return;
@@ -683,16 +918,56 @@
             E.secs.forEach(function(section) {
               appendFrame(section.querySelector('.container'))
             });
-            appendFrame(E.stage && E.stage.querySelector('.case-stage__frame'))
+            appendFrame(E.stage && E.stage.querySelector('.case-stage__frame'));
+            updateDevGrid()
           }
 
-          function resetMeasurements() {
-            measureCache = {}
+          function updateDevGrid() {
+            if (!E.body.getAttribute('data-dev-ready')) return;
+            $$('.dev-cols').forEach(function(cols) {
+              cols.innerHTML = gridTracks(gridColumnCount())
+            })
           }
+
+          function formatZoneTime(zone) {
+            return new Intl.DateTimeFormat('ru-RU', {
+              hour: '2-digit',
+              minute: '2-digit',
+              timeZone: zone
+            }).format(new Date())
+          }
+
+          function renderClockTime(zone) {
+            return formatZoneTime(zone).replace(':', '<span class="contact-clock__colon">:</span>')
+          }
+
+          function zoneHour(zone) {
+            return Number(new Intl.DateTimeFormat('en-US', {
+              hour: '2-digit',
+              hour12: false,
+              timeZone: zone
+            }).format(new Date()))
+          }
+
+          function zoneStatus(zone) {
+            var hour = zoneHour(zone),
+              awake = hour >= 9 && hour < 23;
+            return awake ? 'работает' : 'спит'
+          }
+
+          function updateContactClocks() {
+            var baZone = 'America/Argentina/Buenos_Aires',
+              mskZone = 'Europe/Moscow';
+            html(E.baClock, renderClockTime(baZone));
+            html(E.mskClock, renderClockTime(mskZone));
+            txt(E.baStatus, zoneStatus(baZone));
+            txt(E.mskStatus, zoneStatus(mskZone))
+          }
+
+          setupClientCounts();
           renderCaseCards();
           var casesReady = fetchCases(),
             frameObserver = window.ResizeObserver ? new ResizeObserver(function() {
-              resetMeasurements();
               if (S.overlay.open && S.overlay.caseIndex != null) renderCase(S.overlay.caseIndex)
             }) : null;
           if (frameObserver && E.stage) {
@@ -702,7 +977,7 @@
           addEventListener('resize', function() {
             setMenu(false);
             updateMaster();
-            resetMeasurements();
+            updateDevGrid();
             if (S.overlay.open && S.overlay.caseIndex != null) renderCase(S.overlay.caseIndex)
           });
           addEventListener('wheel', function(e) {
@@ -745,6 +1020,21 @@
               go(item.getAttribute('data-target'))
             })
           });
+          $$('[data-random-brand]').forEach(function(item) {
+            item.addEventListener('click', function() {
+              var brand = item.getAttribute('data-random-brand').toLowerCase();
+              casesReady.then(function() {
+                var matches = D.cases.map(function(caseItem, index) {
+                  return caseItem && String(caseItem.brand || '').toLowerCase() === brand ? index : null
+                }).filter(function(index) {
+                  return index != null
+                });
+                if (!matches.length) return;
+                go('s2');
+                openCase(matches[Math.floor(Math.random() * matches.length)])
+              })
+            })
+          });
           E.cards.forEach(function(card) {
             card.addEventListener('click', function() {
               casesReady.then(function() {
@@ -754,8 +1044,41 @@
           });
           E.close && E.close.addEventListener('click', closeCase);
           E.stage && E.stage.addEventListener('click', function(e) {
+            var disclosureBtn = e.target.closest && e.target.closest('.case-disclosure__toggle');
+            if (disclosureBtn) {
+              var disclosure = disclosureBtn.closest('.case-disclosure'),
+                open = !disclosure.classList.contains('is-open');
+              setDisclosureOpen(disclosure, open, true);
+              if (open) scheduleCaseFitAfterMotion(disclosure);
+              else scheduleCaseFit(null);
+              return
+            }
             if (e.target === E.stage || e.target.classList.contains('case-stage__blur')) closeCase()
           });
+          E.stage && E.stage.addEventListener('mouseover', function(e) {
+            var disclosure = e.target.closest && e.target.closest('.case-disclosure');
+            if (!disclosure || disclosure.classList.contains('is-open') || disclosure.classList.contains('is-user-closed')) return;
+            setDisclosureOpen(disclosure, true, false);
+            scheduleCaseFitAfterMotion(disclosure)
+          });
+          E.stage && E.stage.addEventListener('pointerenter', function(e) {
+            var media = e.target.closest && e.target.closest('.case-media');
+            if (!media || matchMedia('(pointer: coarse)').matches) return;
+            moveMediaCursor(e);
+            ensureMediaCursor().classList.add('is-visible')
+          }, true);
+          E.stage && E.stage.addEventListener('pointermove', function(e) {
+            if (!E.mediaCursor || !E.mediaCursor.classList.contains('is-visible')) return;
+            if (!(e.target.closest && e.target.closest('.case-media'))) {
+              E.mediaCursor.classList.remove('is-visible');
+              return
+            }
+            moveMediaCursor(e)
+          });
+          E.stage && E.stage.addEventListener('pointerleave', function(e) {
+            if (e.target.closest && e.target.closest('.case-media') && E.mediaCursor) E.mediaCursor.classList.remove(
+              'is-visible')
+          }, true);
 
           // Touch/swipe support for mobile
           var touchStartY = 0, touchStartTime = 0;
@@ -774,9 +1097,11 @@
           }, { passive: true });
           walk(E.w);
           walk(E.stage);
+          updateContactClocks();
+          T.contactClock = setInterval(updateContactClocks, 1000);
           updateMaster();
           syncUiState();
           go('s0', false);
-          scheduleHero();
+          whenFontsReady(scheduleHero);
         });
 })();

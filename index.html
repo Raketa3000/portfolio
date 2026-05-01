@@ -7,9 +7,11 @@
     <meta name="description" content="Коммьюнити экспертов, помогающее топовым российским и международным брендам создавать эффективную и заметную коммуникацию в digital.">
     <meta name="keywords" content="коммьюнити экспертов, стратегия, креатив, digital, коммуникация, бренды, реклама">
     <title>Студия - стратегия и креатив</title>
-    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap&subset=cyrillic" as="style">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preload" href="https://fonts.googleapis.com/css2?family=Onest:wght@300;400;900&display=block&subset=cyrillic" as="style">
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap&subset=cyrillic"
+      href="https://fonts.googleapis.com/css2?family=Onest:wght@300;400;900&display=block&subset=cyrillic"
       rel="stylesheet">
     <link rel="stylesheet" href="assets/css/styles.css">
   </head>
@@ -78,18 +80,26 @@
           <div class="services-grid section-grid">
             <div class="services-label heading grid-anchor-start fu">CLIENTS</div>
             <div class="clients-grid fu">
-              <div></div>
-              <div></div>
-              <div></div>
-              <div></div>
-              <div></div>
-              <div></div>
-              <div></div>
-              <div></div>
-              <div></div>
-              <div></div>
-              <div></div>
-              <div></div>
+              <span class="client-item">ЛЭТУАЛЬ<sup>(1)</sup></span>
+              <button class="client-item client-item--link" type="button" data-random-brand="билайн">Билайн<sup>(3)</sup></button>
+              <span class="client-item">Бургер Кинг<sup>(4)</sup></span>
+              <span class="client-item">Яндекс<sup>(1)</sup></span>
+              <span class="client-item">Юнилевер<sup>(8)</sup></span>
+              <span class="client-item">Huawei<sup>(2)</sup></span>
+              <span class="client-item">Авито<sup>(5)</sup></span>
+              <span class="client-item">Zewa<sup>(1)</sup></span>
+              <span class="client-item">KIA<sup>(1)</sup></span>
+              <span class="client-item">Volkswagen<sup>(3)</sup></span>
+              <span class="client-item">Barilla<sup>(3)</sup></span>
+              <span class="client-item">Mondelez<sup>(1)</sup></span>
+              <span class="client-item">Сбер<sup>(1)</sup></span>
+              <span class="client-item">Lufthansa<sup>(1)</sup></span>
+              <span class="client-item">Gerber<sup>(2)</sup></span>
+              <span class="client-item">Nivea<sup>(1)</sup></span>
+              <span class="client-item">PepsiCo<sup>(1)</sup></span>
+              <span class="client-item">Mars<sup>(1)</sup></span>
+              <span class="client-item">Альфа-Банк<sup>(1)</sup></span>
+              <span class="client-item">Riot<sup>(1)</sup></span>
             </div>
           </div>
         </div>
@@ -104,23 +114,14 @@
       </section>
       <section class="section" id="s3" data-nav-icon="back">
         <div class="container master-grid contact-grid">
-          <h1 class="contact-title heading grid-anchor-start fu">ДАВАЙТЕ СДЕЛАЕМ<br><span
-              id="contact-loop">СТРАТЕГИЮ</span> ВМЕСТЕ</h1>
-          <div class="contact-cta fu td-4">
-            <div class="contact-cta__title trim-inter">Пришлите нам свой бриф</div>
-            <div class="contact-cta__actions"><a href="https://t.me/raketa3000" target="_blank"
-                rel="noopener noreferrer" class="contact-cta__btn" aria-label="Telegram Глеб"><svg viewBox="0 0 24 24"
-                  aria-hidden="true">
-                  <path
-                    d="M9.04 15.47 8.66 20.8c.54 0 .78-.23 1.07-.5l2.56-2.45 5.3 3.88c.98.54 1.67.26 1.93-.9l3.5-16.4.01-.01c.32-1.5-.54-2.08-1.5-1.72L1.97 10.2c-1.45.57-1.43 1.38-.25 1.74l5 1.56L18.34 6.2c.55-.33 1.05-.15.64.22">
-                  </path>
-                </svg></a><a href="https://t.me/overall_0k" target="_blank" rel="noopener noreferrer"
-                class="contact-cta__btn" aria-label="Telegram Дмитрий"><svg viewBox="0 0 24 24" aria-hidden="true">
-                  <path
-                    d="M9.04 15.47 8.66 20.8c.54 0 .78-.23 1.07-.5l2.56-2.45 5.3 3.88c.98.54 1.67.26 1.93-.9l3.5-16.4.01-.01c.32-1.5-.54-2.08-1.5-1.72L1.97 10.2c-1.45.57-1.43 1.38-.25 1.74l5 1.56L18.34 6.2c.55-.33 1.05-.15.64.22">
-                  </path>
-                </svg></a></div><a href="mailto:zeroads@gmail.com"
-              class="contact-cta__email trim-inter">zeroads@gmail.com</a>
+          <div class="contact-anchor grid-anchor-start fu">
+            <div class="contact-title-layer">
+              <div class="contact-title-stack">
+                <h1 class="contact-title heading" id="contact-a">ПОКА<br>ВЫ СПИТЕ<br>МЫ РАБОТАЕМ</h1>
+                <h1 class="contact-title heading hide" id="contact-b">ДАВАЙТЕ<br>СДЕЛАЕМ<br><span
+                    id="contact-loop"></span><br>ВМЕСТЕ</h1>
+              </div>
+            </div>
           </div>
           <div class="card service-card team-card--row-2 contact-photo--left fu">
             <div class="team-photo-placeholder"><img
@@ -134,19 +135,33 @@
                 alt="Глеб Янковский" loading="lazy" decoding="async"></div>
           </div>
           <div class="card service-card team-member contact-member--left fu td-2">
-            <div class="case-cat trim-inter">стратег</div>
+            <div class="case-cat trim-inter">Strategy director</div>
             <div class="card-title heading">ДМИТРИЙ<br>БАННИКОВ</div>
-            <div class="card-desc trim-inter">11&nbsp;лет опыта в&nbsp;digital</div>
           </div>
           <div class="card service-card team-member contact-member--right fu td-3">
-            <div class="case-cat trim-inter">креатор</div>
+            <div class="case-cat trim-inter">Creative director</div>
             <div class="card-title heading">ГЛЕБ<br>ЯНКОВСКИЙ</div>
-            <div class="card-desc trim-inter">9&nbsp;лет опыта в&nbsp;digital</div>
           </div>
-          <p class="team-note trim-inter contact-note--left fu td-4">Базируемся в&nbsp;Буэнос-Айресе<br><br>-
-            6&nbsp;часов от&nbsp;Москвы</p>
-          <p class="team-note trim-inter contact-note--right fu td-5">Работаем, пока вы&nbsp;спите!<br><br>Идеальный
-            вариант для решений, нужных еще вчера!</p>
+          <div class="contact-info contact-info--ba fu td-4">
+            <span class="contact-info__label trim-inter">Буэнос-Айрес</span>
+            <span class="contact-info__value trim-inter"><span id="ba-clock">00:00</span><span
+                class="contact-info__subvalue" id="ba-status">работает</span></span>
+          </div>
+          <div class="contact-info contact-info--msk fu td-5">
+            <span class="contact-info__label trim-inter">Москва</span>
+            <span class="contact-info__value trim-inter"><span id="msk-clock">00:00</span><span
+                class="contact-info__subvalue" id="msk-status">работает</span></span>
+          </div>
+          <a class="contact-info contact-info--telegram fu td-6" href="https://t.me/overall_0k" target="_blank"
+            rel="noopener noreferrer">
+            <span class="contact-info__label trim-inter">Бриф по стратегии</span>
+            <span class="contact-info__value trim-inter"><span class="contact-info__link-word">ПРИСЛАТЬ</span><span class="contact-info__subvalue">в телеграм</span></span>
+          </a>
+          <a class="contact-info contact-info--email fu td-7" href="https://t.me/raketa3000" target="_blank"
+            rel="noopener noreferrer">
+            <span class="contact-info__label trim-inter">Бриф по креативу</span>
+            <span class="contact-info__value trim-inter"><span class="contact-info__link-word">ПРИСЛАТЬ</span><span class="contact-info__subvalue">в телеграм</span></span>
+          </a>
         </div>
       </section>
     </div>
@@ -163,10 +178,27 @@
           </div>
         </div>
         <div class="case-stage__body" id="case-stage-body"></div>
-        <div class="case-stage__stats" id="case-stage-stats"></div>
       </div>
     </div>
-<script src="assets/js/script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hyphenopoly@6.1.0/Hyphenopoly_Loader.js"></script>
+    <script>
+      Hyphenopoly.config({
+        require: {
+          "ru": "FORCEHYPHENOPOLY",
+          "en-us": "FORCEHYPHENOPOLY"
+        },
+        setup: {
+          hide: "text",
+          selectors: {
+            ".case-col__text": {
+              minWordLength: 6,
+              orphanControl: 2
+            }
+          }
+        }
+      });
+    </script>
+    <script src="assets/js/script.js"></script>
   </body>
 
 </html>
