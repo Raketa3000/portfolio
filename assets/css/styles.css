@@ -41,15 +41,17 @@
         --tr-reveal: opacity .5s ease, transform .8s var(--ease-soft);
         --tr-fade: opacity .24s ease, visibility .24s ease;
         --font-family: Onest, sans-serif;
+        --font-neon: Onest, sans-serif;
         --font-ui: 300 clamp(12px, 1.2vw, 14px)/1.2 var(--font-family);
         --font-case-title: 300 clamp(20px, 2.5vw, 28px)/1.1 var(--font-family);
-        --font-section: 900 clamp(32px, 5.5vw, 64px)/1 var(--font-family);
-        --font-hero: 900 clamp(36px, 6vw, 72px)/1 var(--font-family);
+        --font-section: 300 clamp(32px, 5.5vw, 64px)/1 var(--font-neon);
+        --font-hero: 300 clamp(36px, 6vw, 72px)/1 var(--font-neon);
         --font-eyebrow: 300 clamp(9px, 1vw, 10px)/1.2 var(--font-family);
         --font-title: 300 clamp(18px, 2vw, 24px)/1.1 var(--font-family);
         --font-body: 300 clamp(14px, 1.4vw, 16px)/1.2 var(--font-family);
         --font-body-small: 300 clamp(11px, 1.1vw, 13px)/1.2 var(--font-family);
         --tracking-display-cyr: 0;
+        --spacing-neon-word: .28em;
         --tracking-title-cyr: 0;
         --tracking-eyebrow-cyr: .08em;
         --space-eyebrow-title: 10px;
@@ -112,6 +114,69 @@
         outline-offset: 4px
       }
 
+      @keyframes neonFlicker {
+        0%, 100% {
+          opacity: 1;
+          filter: brightness(1);
+          text-shadow: var(--glow), 0 0 2px currentColor
+        }
+
+        14% {
+          opacity: .96;
+          filter: brightness(.96);
+          text-shadow: var(--glow), 0 0 1px currentColor
+        }
+
+        18%, 52% {
+          opacity: 1;
+          filter: brightness(1.08);
+          text-shadow: var(--glow), 0 0 3px currentColor
+        }
+
+        56% {
+          opacity: .9;
+          filter: brightness(.88);
+          text-shadow: 0 0 16px rgba(255,77,166,.45), 0 0 32px rgba(255,77,166,.3)
+        }
+
+        62%, 88% {
+          opacity: 1;
+          filter: brightness(1.04);
+          text-shadow: var(--glow), 0 0 3px currentColor
+        }
+
+        91% {
+          opacity: .94;
+          filter: brightness(.9)
+        }
+      }
+
+      @keyframes neonLetterDrop {
+        0%, 73.8%, 74.5%, 75.8%, 76.4%, 100% {
+          opacity: 1;
+          filter: brightness(1);
+          text-shadow: inherit
+        }
+
+        74%, 76% {
+          opacity: .04;
+          filter: brightness(.12);
+          text-shadow: 0 0 1px rgba(255,77,166,.08)
+        }
+
+        74.2%, 76.2% {
+          opacity: 1;
+          filter: brightness(1.42);
+          text-shadow: inherit
+        }
+
+        74.9% {
+          opacity: .16;
+          filter: brightness(.22);
+          text-shadow: 0 0 1px rgba(255,77,166,.12)
+        }
+      }
+
       @keyframes mr {
         0% {
           transform: translate3d(var(--stack-offset, 0), -50%, 0);
@@ -129,6 +194,7 @@
       }
 
       #w {
+        background: var(--bg);
         will-change: transform;
         transition: var(--sec)
       }
@@ -137,7 +203,7 @@
         height: 100vh;
         overflow: hidden;
         position: relative;
-        border-bottom: 1px solid var(--line)
+        background: var(--bg)
       }
 
       .container {
@@ -284,8 +350,6 @@
       .trim-inter,
       .card-desc,
       .case-col__text,
-      .case-stage__body,
-      .case-stage__body p,
       .case-stat__label {
         font: var(--font-body);
         line-height: 1.2;
@@ -351,11 +415,17 @@
         translate: 0;
         font: var(--font-hero);
         letter-spacing: var(--tracking-display-cyr);
+        word-spacing: var(--spacing-neon-word);
+        font-kerning: normal;
         text-shadow: var(--glow);
         white-space: nowrap;
         text-align: left;
         will-change: opacity;
         transition: opacity .42s
+      }
+
+      .hero-title:not(.hide):not(.off) {
+        animation: neonFlicker 6.8s ease-in-out infinite
       }
 
       .hero-title.off,
@@ -369,10 +439,12 @@
       }
 
       .hero-inline-wrap {
-        display: inline-flex;
-        align-items: baseline;
-        gap: .22em;
+        display: inline-block;
         white-space: nowrap
+      }
+
+      .hero-inline-wrap #h-loop {
+        margin-left: .22em
       }
 
       #h-loop {
@@ -422,11 +494,85 @@
       .services-label,
       .contact-title {
         font: var(--font-section);
-        font-weight: 900;
+        font-weight: 300;
         letter-spacing: var(--tracking-display-cyr);
+        word-spacing: var(--spacing-neon-word);
+        font-kerning: normal;
         text-transform: uppercase;
         color: var(--text);
         text-shadow: var(--glow)
+      }
+
+      .services-label,
+      .contact-title:not(.hide):not(.off) {
+        animation: neonFlicker 7.4s ease-in-out infinite
+      }
+
+      .neon-letter {
+        display: inline-block;
+        text-shadow: inherit
+      }
+
+      .neon-space {
+        display: inline-block;
+        width: var(--spacing-neon-word)
+      }
+
+      .neon-letter--drop {
+        animation: neonLetterDrop var(--neon-letter-duration, 14s) steps(1, end) infinite;
+        animation-delay: var(--neon-letter-delay, 0s)
+      }
+
+      .neon-letter--dim {
+        animation: neonLetterDim var(--neon-letter-duration, 15s) steps(1, end) infinite;
+        animation-delay: var(--neon-letter-delay, 0s)
+      }
+
+      .hero-title,
+      .services-label,
+      .contact-title,
+      .case-password-promo__title,
+      .neon-letter--drop,
+      .neon-letter--dim {
+        animation-play-state: paused
+      }
+
+      body[data-section="s0"] #s0 .hero-title:not(.hide):not(.off),
+      body[data-section="s0"] #s0 .hero-title:not(.hide):not(.off) .neon-letter--drop,
+      body[data-section="s0"] #s0 .hero-title:not(.hide):not(.off) .neon-letter--dim,
+      body[data-section="s1"] #s1 .services-label,
+      body[data-section="s1"] #s1 .services-label .neon-letter--drop,
+      body[data-section="s1"] #s1 .services-label .neon-letter--dim,
+      body[data-section="s1-2"] #s1-2 .services-label,
+      body[data-section="s1-2"] #s1-2 .services-label .neon-letter--drop,
+      body[data-section="s1-2"] #s1-2 .services-label .neon-letter--dim,
+      body[data-section="s2"] #s2 .services-label,
+      body[data-section="s2"] #s2 .services-label .neon-letter--drop,
+      body[data-section="s2"] #s2 .services-label .neon-letter--dim,
+      body[data-section="s3"] #s3 .contact-title:not(.hide):not(.off),
+      body[data-section="s3"] #s3 .contact-title:not(.hide):not(.off) .neon-letter--drop,
+      body[data-section="s3"] #s3 .contact-title:not(.hide):not(.off) .neon-letter--dim {
+        animation-play-state: running
+      }
+
+      .case-stage.open .case-password-promo__title:not(.hide):not(.off),
+      .case-stage.open .case-password-promo__title:not(.hide):not(.off) .neon-letter--drop,
+      .case-stage.open .case-password-promo__title:not(.hide):not(.off) .neon-letter--dim {
+        animation-play-state: running
+      }
+
+      @keyframes neonLetterDim {
+        0%, 66%, 68%, 100% {
+          opacity: 1;
+          filter: brightness(1);
+          text-shadow: inherit
+        }
+
+        66.4%, 67.4% {
+          opacity: .46;
+          filter: brightness(.44);
+          text-shadow: 0 0 7px rgba(255,77,166,.26)
+        }
       }
 
       .services-label {
@@ -442,18 +588,65 @@
         width: max-content;
         translate: 0;
         white-space: nowrap;
-        will-change: opacity;
-        transition: opacity .42s
+        will-change: opacity, filter, clip-path;
+        transition: opacity .28s ease, filter .28s ease
       }
 
       .contact-title.off,
       .contact-title.hide {
         opacity: 0;
+        filter: brightness(.65) blur(2px);
         pointer-events: none
       }
 
       .contact-title.hide {
         visibility: hidden
+      }
+
+      .contact-title--dissolve-out {
+        animation: contactDissolveOut .34s cubic-bezier(.22, .61, .36, 1) both
+      }
+
+      .contact-title--dissolve-in {
+        animation: contactDissolveIn .34s cubic-bezier(.22, .61, .36, 1) both
+      }
+
+      @keyframes contactDissolveOut {
+        0% {
+          opacity: 1;
+          filter: brightness(1) blur(0);
+          clip-path: inset(0 0 0 0)
+        }
+
+        46% {
+          opacity: .72;
+          filter: brightness(1.28) blur(.5px)
+        }
+
+        100% {
+          opacity: 0;
+          filter: brightness(.65) blur(2px);
+          clip-path: inset(0 0 0 7%)
+        }
+      }
+
+      @keyframes contactDissolveIn {
+        0% {
+          opacity: 0;
+          filter: brightness(1.35) blur(2px);
+          clip-path: inset(0 7% 0 0)
+        }
+
+        54% {
+          opacity: .76;
+          filter: brightness(1.12) blur(.5px)
+        }
+
+        100% {
+          opacity: 1;
+          filter: brightness(1) blur(0);
+          clip-path: inset(0 0 0 0)
+        }
       }
 
       #contact-loop {
@@ -686,7 +879,7 @@
       }
 
       .case-stage .dev-frame {
-        inset: 0;
+        inset: var(--master-top) var(--grid-padding) var(--section-padding-bottom);
         z-index: 5
       }
 
@@ -706,13 +899,13 @@
         align-items: start;
         align-content: start;
         position: absolute;
-        top: var(--grid-padding);
-        bottom: var(--grid-padding);
+        top: 0;
+        bottom: 0;
         left: 50%;
         transform: translateX(-50%);
-        width: min(calc(100% - 2*var(--grid-padding)), calc(var(--grid-max-width) - 2*var(--grid-padding)));
+        width: min(100%, var(--grid-max-width));
         overflow: hidden;
-        padding-inline: 0
+        padding: var(--master-top) var(--grid-padding) var(--section-padding-bottom)
       }
 
       .case-stage__frame {
@@ -896,22 +1089,32 @@
         cursor: pointer
       }
 
-      .cases-grid.case-focus-active .case-card {
-        opacity: 0;
-        pointer-events: none
+      .cases-more {
+        display: block;
+        align-self: flex-start;
+        width: max-content;
+        max-width: 100%;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        color: inherit;
+        text-align: left;
+        opacity: .58;
+        transition: opacity .28s, filter .28s;
+        cursor: pointer
       }
 
-      .cases-grid.case-focus-active .case-card.is-active {
-        opacity: 1;
-        pointer-events: auto;
-        z-index: 4
+      .cases-more:hover {
+        opacity: 1
       }
 
-      .cases-grid:not(.case-focus-active):hover .case-card {
+      .cases-grid:hover .case-card,
+      .cases-grid:hover .cases-more {
         opacity: .28
       }
 
-      .cases-grid:not(.case-focus-active) .case-card:hover {
+      .cases-grid .case-card:hover,
+      .cases-grid .cases-more:hover {
         opacity: 1 !important
       }
 
@@ -928,7 +1131,10 @@
         vertical-align: -.04em
       }
 
-      .case-card .case-title {
+      .case-card .case-title,
+      .cases-more .case-title {
+        display: flex;
+        flex-direction: column;
         justify-content: flex-start;
         width: max-content;
         max-width: 28ch;
@@ -940,6 +1146,128 @@
         word-break: normal;
         overflow-wrap: normal;
         hyphens: none
+      }
+
+      .case-password-promo {
+        grid-column: 1/span 6;
+        grid-row: 2;
+        align-self: start;
+        justify-self: stretch;
+        min-width: 0;
+        color: var(--text)
+      }
+
+      .case-password-promo__stack {
+        position: relative;
+        width: 100%;
+        min-height: clamp(96px, 16.5vw, 192px)
+      }
+
+      .case-password-promo__title {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: max-content;
+        max-width: 100%;
+        font: var(--font-section);
+        font-weight: 300;
+        letter-spacing: var(--tracking-display-cyr);
+        word-spacing: var(--spacing-neon-word);
+        font-kerning: normal;
+        line-height: 1;
+        text-transform: uppercase;
+        white-space: nowrap;
+        text-shadow: var(--glow);
+        will-change: opacity, filter, clip-path;
+        transition: opacity .28s ease, filter .28s ease
+      }
+
+      .case-password-promo__title:not(.hide):not(.off) {
+        animation: neonFlicker 7.4s ease-in-out infinite
+      }
+
+      .case-password-promo__title.off,
+      .case-password-promo__title.hide {
+        opacity: 0;
+        filter: brightness(.65) blur(2px);
+        pointer-events: none
+      }
+
+      .case-password-promo__title.hide {
+        visibility: hidden
+      }
+
+      .case-password {
+        grid-column: 7/span 6;
+        grid-row: 2;
+        align-self: start;
+        justify-self: stretch;
+        width: 100%;
+        max-width: 520px;
+        color: var(--text)
+      }
+
+      .case-password__label {
+        display: block;
+        margin-bottom: var(--space-block);
+        font: var(--font-body);
+        font-weight: 300;
+        letter-spacing: var(--tracking-title-cyr);
+        text-transform: uppercase
+      }
+
+      .case-password__row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: var(--grid-gap);
+        align-items: end
+      }
+
+      .case-password__input,
+      .case-password__submit {
+        min-height: 42px;
+        border: 0;
+        border-bottom: 1px solid currentColor;
+        border-radius: 0;
+        background: transparent;
+        color: inherit;
+        font: var(--font-body);
+        font-weight: 300;
+        letter-spacing: var(--tracking-title-cyr);
+        text-transform: uppercase
+      }
+
+      .case-password__input {
+        width: 100%;
+        outline: none
+      }
+
+      .case-password__input:focus {
+        box-shadow: 0 1px 0 currentColor
+      }
+
+      .case-password__submit {
+        padding: 0;
+        cursor: pointer
+      }
+
+      .case-password__submit:hover {
+        text-decoration: underline;
+        text-underline-offset: .16em
+      }
+
+      .case-password__message {
+        min-height: 1.2em;
+        margin-top: var(--space-block);
+        opacity: 0;
+        font: var(--font-body-small);
+        font-weight: 300;
+        text-transform: uppercase;
+        transition: opacity .2s ease
+      }
+
+      .case-password.is-invalid .case-password__message {
+        opacity: .72
       }
 
       .contact-grid {
@@ -1072,13 +1400,6 @@
         transition: opacity .42s
       }
 
-      .case-stage.open~#w,
-      .case-stage.open~nav,
-      .case-stage.open~.menu {
-        opacity: 0;
-        pointer-events: none
-      }
-
       .case-stage.open {
         opacity: 1;
         pointer-events: auto
@@ -1146,7 +1467,7 @@
       }
 
       .case-stage__meta .case-title {
-        font: var(--font-title);
+        font: var(--font-body);
         font-weight: 300;
         line-height: 1.1;
         letter-spacing: var(--tracking-title-cyr);
@@ -1173,7 +1494,7 @@
         grid-column: var(--gc);
         grid-row: var(--gr)/span 4;
         display: grid;
-        grid-template-columns: minmax(0, 1fr);
+        grid-template-columns: repeat(3, minmax(0, 1fr));
         gap: 0;
         align-self: start;
         min-width: 0;
@@ -1193,9 +1514,14 @@
 
       .case-media__item {
         display: block;
+        grid-column: 1/-1;
         min-width: 0;
         margin: 0;
         overflow: hidden
+      }
+
+      .case-media__item[data-layout="third"] {
+        grid-column: span 1
       }
 
       .case-media__item img,
@@ -1377,8 +1703,12 @@
         font: var(--font-body);
         min-width: 0;
         max-width: 100%;
+        hyphens: auto;
+        -webkit-hyphens: auto;
+        -moz-hyphens: auto;
         overflow-wrap: normal;
         word-break: normal;
+        line-break: strict;
         text-wrap: pretty;
         color: var(--text)
       }
@@ -1440,34 +1770,10 @@
         text-transform: none
       }
 
-      .case-stage__stats[data-stats="off"] {
-        display: none
-      }
-
-      .case-col__text,
-      .case-stage__body,
-      .case-stage__body p {
-        hyphens: auto;
-        -webkit-hyphens: auto;
-        -moz-hyphens: auto;
-        overflow-wrap: normal;
-        word-break: normal;
-        line-break: strict;
-        hyphenate-limit-chars: 6 3 3;
-        hyphenate-limit-lines: 2;
-        hyphenate-limit-zone: 8%;
-      }
-
       .case-stage__body {
         text-align: left;
         orphans: 2;
         widows: 2;
-      }
-
-      .case-stage__body p {
-        margin: 0 0 var(--space-block) 0;
-        text-wrap: pretty;
-        text-align: left;
       }
 
       @supports (text-box-trim:trim-start) {
@@ -1554,6 +1860,8 @@
         .contact-info--email { grid-column: 10/span 3 }
 
         .case-stage__meta { grid-column: 1/span 8 }
+        .case-password-promo { grid-column: 1/span 4 }
+        .case-password { grid-column: 5/span 8 }
         .nav-action { grid-column: 11/span 2 }
       }
 
@@ -1661,6 +1969,14 @@
         }
 
         .case-stage__meta { grid-column: 1/span 6 }
+        .case-password-promo {
+          grid-column: 1/span 6;
+          grid-row: 2;
+        }
+        .case-password {
+          grid-column: 1/span 6;
+          grid-row: 3;
+        }
         .case-accordion {
           grid-column: 1/span 6;
           grid-row: 3;
@@ -1760,6 +2076,14 @@
         }
 
         .case-stage__meta { grid-column: 1/span 4 }
+        .case-password-promo {
+          grid-column: 1/span 4;
+          grid-row: 2;
+        }
+        .case-password {
+          grid-column: 1/span 4;
+          grid-row: 3;
+        }
         .case-accordion {
           grid-column: 1/span 4;
           grid-row: 3;
@@ -1790,37 +2114,4 @@
           width: auto;
         }
 
-      }
-
-      /* ===== TEXT WRAPPING CONTROL ===== */
-
-      .hero-copy,
-      .card-desc,
-      .case-stat__label {
-        word-break: normal;
-        overflow-wrap: normal;
-        -webkit-hyphens: none;
-        hyphens: none;
-        text-wrap: pretty;
-        orphans: 2;
-        widows: 2;
-      }
-
-      .hero-title,
-      .services-label,
-      .contact-title,
-      .card-title,
-      .case-card .case-title {
-        text-wrap: balance;
-        word-break: normal;
-        overflow-wrap: normal;
-        -webkit-hyphens: none;
-        hyphens: none;
-      }
-
-      .case-col__text {
-        text-align: left;
-        overflow-wrap: normal;
-        -webkit-hyphens: auto;
-        hyphens: auto;
       }

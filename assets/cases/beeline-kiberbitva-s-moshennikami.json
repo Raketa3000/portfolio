@@ -17,6 +17,39 @@
     },
     {
       "type": "image",
+      "src": "assets/cases/media/kiberbitva-portrait-sulim.webp",
+      "alt": "Саша Сулим в выпуске Кибербитва с мошенниками",
+      "fit": "contain",
+      "layout": "third"
+    },
+    {
+      "type": "image",
+      "src": "assets/cases/media/kiberbitva-portrait-girl.webp",
+      "alt": "Героиня выпуска Кибербитва с мошенниками",
+      "fit": "contain",
+      "layout": "third"
+    },
+    {
+      "type": "image",
+      "src": "assets/cases/media/kiberbitva-portrait-olga.webp",
+      "alt": "Ольга в выпуске Кибербитва с мошенниками",
+      "fit": "contain",
+      "layout": "third"
+    },
+    {
+      "type": "image",
+      "src": "assets/cases/media/kiberbitva-wide-man.webp",
+      "alt": "Эксперт в выпуске Кибербитва с мошенниками",
+      "fit": "contain"
+    },
+    {
+      "type": "image",
+      "src": "assets/cases/media/kiberbitva-wide-woman.webp",
+      "alt": "Экспертка в выпуске Кибербитва с мошенниками",
+      "fit": "contain"
+    },
+    {
+      "type": "image",
       "src": "assets/cases/media/kiberbitva-audience.webp",
       "alt": "Отклик аудитории на выпуск Кибербитва с мошенниками",
       "caption": "Отклик аудитории",
@@ -35,5 +68,10 @@
     ["+5.5PP", ["SAFETY", "ATTRIBUTE"]],
     ["+18%", ["CUSTOMER", "BASE"]],
     ["6K", ["TOTAL", "COMMENTS"]]
+  ],
+  "awards": [
+    ["3", ["Bronze", "G8, Proxima, E+"]],
+    ["2", ["Silver", "Tagline"]],
+    ["3", ["Gold", "Tagline, SM"]]
   ]
 }

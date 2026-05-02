@@ -48,7 +48,7 @@
               }, {
                 title: ['Атака титанов']
               }, {
-                title: ['Стратегия для бренда', 'презервативов <span class="case-title-redact" aria-label="замазано"></span>']
+                title: ['Стратегия для бренда', 'презервативов']
               }],
               screens: {
                 s0: {
@@ -70,7 +70,9 @@
                 }
               },
               layout: {
-                flowOrder: ['context', 'task', 'insight', 'strategy', 'strategic_solution', 'solution', 'result'],
+                flowOrder: ['context', 'task', 'insight', 'strategy', 'strategic_solution', 'solution', 'result',
+                  'awards'
+                ],
                 zones: [{
                   startRow: 2,
                   endRow: 4,
@@ -92,7 +94,8 @@
                 strategy: 'Стратегия',
                 solution: 'Решение',
                 strategic_solution: 'Стратегическое решение',
-                result: 'Результат'
+                result: 'Результат',
+                awards: 'Награды'
               }
             },
             D = {
@@ -101,7 +104,7 @@
               heroWords: ['ПРОБОВАТЬ', 'СМОТРЕТЬ', 'ИСКАТЬ', 'ПОКУПАТЬ'],
               contactWords: ['СТРАТЕГИЮ', 'КРЕАТИВ', 'ПРОЕКТ', 'КАМПАНИЮ'],
               contactIntroDelayMs: 1600,
-              contactLoopStartDelayMs: 2000,
+              contactLoopStartDelayMs: 2400,
               glyphs: 'АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯABCDEFGHIJKLMNOPQRSTUVWXYZ',
               heroIntroDelayMs: 1600,
               heroLoopStartDelayMs: 2000,
@@ -111,6 +114,7 @@
               menuAnimationMs: 900,
               sectionLock: 650,
               backIcon: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"></path><path d="M3 3v6h6"></path></svg>',
+              caseDataVersion: '2026-05-01-awards',
               caseFiles: ['beeline-eto-vyshka', 'beeline-kiberbitva-s-moshennikami', 'letual-prohor-shalyapin',
                 'burger-king', 'condoms'
               ]
@@ -126,7 +130,8 @@
               heroMenuPlayed: false,
               overlay: {
                 open: false,
-                caseIndex: null
+                caseIndex: null,
+                openOrder: 0
               },
               ui: {
                 dev: false
@@ -152,6 +157,11 @@
               (interval ? clearInterval : clearTimeout)(T[k]);
               T[k] = null
             },
+            cancelFrame = function(k) {
+              if (!T[k]) return;
+              cancelAnimationFrame(T[k]);
+              T[k] = null
+            },
             escapeHtml = function(s) {
               return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g,
                 '&quot;')
@@ -160,7 +170,7 @@
               return SITE_DATA.screens[id] || {}
             },
             toRawUrl = function(v) {
-              return 'assets/cases/' + v + '.json'
+              return 'assets/cases/' + v + '.json?v=' + encodeURIComponent(D.caseDataVersion)
             };
 
           function whenFontsReady(fn) {
@@ -224,10 +234,6 @@
             return result.replace(/\s+-\s+/g, String.fromCharCode(160) + '— ')
           }
 
-          function nbsp(s) {
-            return typographText(s)
-          }
-
           function walk(n) {
             for (var i = 0, c; i < n.childNodes.length; i++)
               if ((c = n.childNodes[i]).nodeType === 3) c.nodeValue = typographText(c.nodeValue);
@@ -237,20 +243,6 @@
           function fmt(s) {
             return escapeHtml(typographText(String(s))).replace(/\n/g, '<br>').replace(/ /g, '&nbsp;').replace(/\[redact:5\]/g,
               '<span class="case-title-redact" aria-label="замазано"></span>')
-          }
-
-          function fmtCasePreviewTitle(s) {
-            return escapeHtml(typographText(String(s))).replace(/ /g, '&nbsp;').replace(/&lt;span class=&quot;case-title-redact&quot; aria-label=&quot;замазано&quot;&gt;&lt;\/span&gt;/g,
-              '<span class="case-title-redact" aria-label="замазано"></span>')
-          }
-
-          function hyphenateCaseText() {
-            var H = window.Hyphenopoly;
-            if (!H || !H.hyphenators || !H.hyphenators.HTML) return;
-            H.hyphenators.HTML.then(function(hyphenateHTML) {
-              hyphenateHTML(E.bodyPane, '.case-col__text');
-              scheduleCaseFit()
-            })
           }
 
           function syncUiState() {
@@ -270,11 +262,12 @@
             if (!E.grid) return;
             E.grid.innerHTML = SITE_DATA.previews.map(function(x, i) {
               var title = x.title.map(function(line) {
-                return '<span class="case-title__line">' + fmtCasePreviewTitle(line) + '</span>'
+                return '<span class="case-title__line">' + fmt(line) + '</span>'
               }).join('');
               return '<article class="case-card fu' + (i ? ' td-' + i : '') + '" data-case-index="' + i +
                 '"><div class="case-title heading">' + title + '</div></article>'
-            }).join('');
+            }).join('') +
+              '<button class="cases-more fu td-5" type="button"><span class="case-title heading">Еще больше кейсов</span></button>';
             E.cards = $$('.case-card')
           }
 
@@ -307,10 +300,12 @@
                   alt: media.alt || item.title || '',
                   caption: media.caption || '',
                   fit: media.fit || 'contain',
+                  layout: media.layout || 'full',
                   html: media.html || ''
                 }
               }) : [],
-              stats: Array.isArray(item.stats) ? item.stats : []
+              stats: Array.isArray(item.stats) ? item.stats : [],
+              awards: Array.isArray(item.awards) ? item.awards : []
             }
           }
 
@@ -337,7 +332,7 @@
 
           function animateScramble(el, target, key) {
             if (!el) return;
-            clear(key);
+            cancelFrame(key);
             var chars = String(target).split(''),
               pool = [],
               shown = {},
@@ -370,12 +365,78 @@
             T[key] = requestAnimationFrame(frame)
           }
 
+          function applyNeonLetters(root, state) {
+            var isTop = !state;
+            if (!root || (isTop && root.getAttribute('data-neon-ready'))) return;
+            state = state || {
+              seed: Math.floor(Math.random() * 997),
+              wordIndex: 0,
+              candidates: []
+            };
+            root.setAttribute('data-neon-ready', '1');
+            Array.from(root.childNodes).forEach(function(node) {
+              if (node.nodeType === 3) {
+                var frag = document.createDocumentFragment();
+                node.nodeValue.split('').forEach(function(ch, i) {
+                  if (/\s/.test(ch)) {
+                    var space = document.createElement('span');
+                    space.className = 'neon-space';
+                    space.setAttribute('aria-hidden', 'true');
+                    space.textContent = ' ';
+                    frag.appendChild(space);
+                    state.wordIndex++;
+                    return
+                  }
+                  var span = document.createElement('span'),
+                    r = Math.abs(Math.sin((state.seed + i + ch.charCodeAt(0)) * 12.9898) * 43758.5453) % 1,
+                    canAnimate = /[A-ZА-ЯЁ]/.test(ch);
+                  if (canAnimate) {
+                    state.candidates.push({
+                      el: span,
+                      r: r,
+                      word: state.wordIndex
+                    })
+                  }
+                  span.className = 'neon-letter';
+                  span.textContent = ch;
+                  frag.appendChild(span)
+                });
+                node.replaceWith(frag)
+              } else if (node.nodeType === 1 && node.tagName === 'BR') {
+                state.wordIndex++
+              } else if (node.nodeType === 1 && !node.id) {
+                applyNeonLetters(node, state)
+              }
+            });
+            if (isTop) {
+              var byWord = {};
+              state.candidates.forEach(function(item) {
+                if (!byWord[item.word] || item.r > byWord[item.word].r) byWord[item.word] = item
+              });
+              Object.keys(byWord).map(function(word) {
+                return byWord[word]
+              }).sort(function(a, b) {
+                return b.r - a.r
+              }).slice(0, 2).forEach(function(item, i) {
+                item.el.classList.add(item.r > .58 ? 'neon-letter--drop' : 'neon-letter--dim');
+                item.el.style.setProperty('--neon-letter-delay', (-(item.r * 9.5 + i * .8)).toFixed(2) + 's');
+                item.el.style.setProperty('--neon-letter-duration', (9.5 + (item.r * 4)).toFixed(2) + 's')
+              })
+            }
+          }
+
+          function setupNeonLetters() {
+            [E.heroA, E.heroB, $('#contact-a'), $('#contact-b')].forEach(function(el) {
+              applyNeonLetters(el)
+            });
+            $$('.services-label').forEach(function(el) {
+              applyNeonLetters(el)
+            })
+          }
+
           function resetHero() {
             ['heroScramble', 'contactScramble'].forEach(function(k) {
-              if (T[k]) {
-                cancelAnimationFrame(T[k]);
-                T[k] = null
-              }
+              cancelFrame(k)
             });
             clear('heroIntro');
             clear('heroSecondLine');
@@ -383,6 +444,8 @@
             clear('contactLoopTicker', true);
             clear('contactIntro');
             clear('contactSecondLine');
+            clear('contactSwap');
+            clear('contactEnterDone');
             E.heroA && E.heroA.classList.remove('off', 'hide');
             if (E.heroB) {
               E.heroB.classList.remove('off', 'hide');
@@ -394,9 +457,9 @@
             }
             var contactA = $('#contact-a'),
               contactB = $('#contact-b');
-            contactA && contactA.classList.remove('off', 'hide');
+            contactA && contactA.classList.remove('off', 'hide', 'contact-title--dissolve-out', 'contact-title--dissolve-in');
             if (contactB) {
-              contactB.classList.remove('off', 'hide');
+              contactB.classList.remove('off', 'hide', 'contact-title--dissolve-out', 'contact-title--dissolve-in');
               contactB.classList.add('hide')
             }
             if (E.contactLoop) {
@@ -406,6 +469,55 @@
             E.heroFly.forEach(function(el) {
               el.classList.remove('on')
             })
+          }
+
+          function resetHeroTitle() {
+            E.heroA && E.heroA.classList.remove('off', 'hide');
+            if (E.heroB) {
+              E.heroB.classList.remove('off', 'hide');
+              E.heroB.classList.add('hide')
+            }
+            if (E.heroLoop) {
+              E.heroLoop.classList.remove('on');
+              txt(E.heroLoop, '')
+            }
+            E.heroFly.forEach(function(el) {
+              el.classList.remove('on')
+            })
+          }
+
+          function resetContactTitle() {
+            var contactA = $('#contact-a'),
+              contactB = $('#contact-b');
+            contactA && contactA.classList.remove('off', 'hide', 'contact-title--dissolve-out', 'contact-title--dissolve-in');
+            if (contactB) {
+              contactB.classList.remove('off', 'hide', 'contact-title--dissolve-out', 'contact-title--dissolve-in');
+              contactB.classList.add('hide')
+            }
+            if (E.contactLoop) {
+              E.contactLoop.classList.remove('on');
+              txt(E.contactLoop, '')
+            }
+          }
+
+          function stopHeroMotion(resetVisual) {
+            cancelFrame('heroScramble');
+            clear('heroIntro');
+            clear('heroSecondLine');
+            clear('heroLoopTicker', true);
+            if (resetVisual) resetHeroTitle()
+          }
+
+          function stopContactMotion(resetVisual) {
+            cancelFrame('contactScramble');
+            clear('contactLoopTicker', true);
+            clear('contactIntro');
+            clear('contactSecondLine');
+            clear('contactSwap');
+            clear('contactEnterDone');
+            clear('morePromptSwap');
+            clear('morePromptEnterDone');
+            if (resetVisual) resetContactTitle()
           }
 
           function startHeroLoop() {
@@ -502,9 +614,6 @@
               }, i * delay)
             });
             if (id === 's1-2') animateClientCounts();
-            if (id === 's3' && !T.contactLoopTicker) {
-              startContactLoop()
-            }
           }
 
           function startContactLoop() {
@@ -513,17 +622,37 @@
             if (!E.contactLoop || T.contactLoopTicker) return;
             clear('contactIntro');
             clear('contactSecondLine');
-            first && first.classList.remove('off', 'hide');
+            clear('contactSwap');
+            clear('contactEnterDone');
+            first && first.classList.remove('off', 'hide', 'contact-title--dissolve-out', 'contact-title--dissolve-in');
             if (second) {
-              second.classList.remove('off', 'hide');
+              second.classList.remove('off', 'hide', 'contact-title--dissolve-out', 'contact-title--dissolve-in');
               second.classList.add('hide')
             }
             E.contactLoop.classList.remove('on');
             S.contactWord = 0;
             txt(E.contactLoop, D.contactWords[S.contactWord] || '');
             T.contactIntro = setTimeout(function() {
-              first && first.classList.add('off');
-              second && second.classList.remove('hide')
+              if (first) {
+                first.classList.add('contact-title--dissolve-out');
+                T.contactSwap = setTimeout(function() {
+                  first.classList.add('off');
+                  first.classList.remove('contact-title--dissolve-out');
+                  if (second) {
+                    second.classList.remove('hide', 'off');
+                    second.classList.add('contact-title--dissolve-in');
+                    T.contactEnterDone = setTimeout(function() {
+                      second.classList.remove('contact-title--dissolve-in')
+                    }, 340)
+                  }
+                }, 340)
+              } else if (second) {
+                second.classList.remove('hide', 'off');
+                second.classList.add('contact-title--dissolve-in');
+                T.contactEnterDone = setTimeout(function() {
+                  second.classList.remove('contact-title--dissolve-in')
+                }, 340)
+              }
             }, D.contactIntroDelayMs);
             T.contactSecondLine = setTimeout(function() {
               E.contactLoop.classList.add('on');
@@ -614,10 +743,15 @@
             E.w.style.transform = 'translateY(-' + (ids.indexOf(next) * 100) + 'vh)';
             updateNav();
             reveal(curr());
-            if (next !== 's0') {
-              clear('heroIntro');
-              clear('heroSecondLine')
-            } else if (!S.heroMenuPlayed) scheduleHero();
+            if (next === 's0') {
+              stopContactMotion(true);
+              stopHeroMotion(true);
+              scheduleHero()
+            } else {
+              stopHeroMotion(true)
+            }
+            if (next === 's3') startContactLoop();
+            else stopContactMotion(true)
           }
 
           function step(dir) {
@@ -633,6 +767,7 @@
           function buildCaseFlow(item) {
             var blocks = Array.isArray(item.detail && item.detail.blocks) ? item.detail.blocks : null,
               hasStats = !!(item.stats && item.stats.length),
+              hasAwards = !!(item.awards && item.awards.length),
               flow;
             if (blocks && blocks.length) {
               flow = blocks.map(function(block) {
@@ -644,12 +779,12 @@
                 wide: block.wide === true
               }
               }).filter(function(block) {
-                return block.text || (block.id === 'result' && hasStats)
+                return block.text || (block.id === 'result' && hasStats) || (block.id === 'awards' && hasAwards)
               })
             } else {
               flow = SITE_DATA.layout.flowOrder.map(function(id) {
               var text = item.detail && item.detail[id];
-              return text || (id === 'result' && hasStats) ? {
+              return text || (id === 'result' && hasStats) || (id === 'awards' && hasAwards) ? {
                 id: id,
                 title: SITE_DATA.fieldTitles[id] || id,
                 text: text,
@@ -666,15 +801,26 @@
                 wide: false
               })
             }
+            if (hasAwards && !flow.some(function(block) { return block.id === 'awards' })) {
+              flow.push({
+                id: 'awards',
+                title: SITE_DATA.fieldTitles.awards,
+                text: '',
+                wide: false
+              })
+            }
             return flow
           }
 
-          function renderAccordion(flow, stats) {
+          function renderAccordion(flow, stats, awards) {
             return flow.map(function(seg, i) {
               var num = String(i + 1).padStart(2, '0'),
                 hasStats = seg.id === 'result' && stats.length,
+                hasAwards = seg.id === 'awards' && awards.length,
                 body = (seg.text ? '<div class="case-col__text trim-inter">' + fmt(seg.text) + '</div>' : '') +
-                  (hasStats ? '<div class="case-stage__stats" data-stats="on">' + renderStats(stats) + '</div>' : '');
+                  (hasStats ? '<div class="case-stage__stats">' + renderStats(stats) + '</div>' : '') +
+                  (hasAwards ? '<div class="case-stage__stats case-stage__stats--awards">' +
+                    renderStats(awards, true) + '</div>' : '');
               return '<div class="case-disclosure' + (i === 0 ? ' is-open' : '') +
                 '"><button class="case-disclosure__toggle trim-inter" type="button" aria-expanded="' + (i === 0 ?
                   'true' : 'false') + '"><span class="case-disclosure__head"><span class="case-disclosure__num">' +
@@ -684,20 +830,20 @@
             }).join('')
           }
 
-          function renderCaseAccordion(flow, stats) {
+          function renderCaseAccordion(flow, stats, awards) {
             var wrap = document.createElement('div'),
               cols = gridColumnCount(),
               compact = cols <= 6;
             wrap.className = 'case-accordion';
             wrap.style.setProperty('--gc', compact ? '1/span ' + cols : '1/span 6');
             wrap.style.setProperty('--gr', compact ? '3' : '2');
-            wrap.innerHTML = renderAccordion(flow, stats);
+            wrap.innerHTML = renderAccordion(flow, stats, awards);
             return wrap
           }
 
-          function renderStatLabel(label) {
+          function renderStatLabel(label, keepCase) {
             return (label || []).map(function(x) {
-              return '<span>' + fmt(String(x).toLowerCase()) + '</span>'
+              return '<span>' + fmt(keepCase ? String(x) : String(x).toLowerCase()) + '</span>'
             }).join('<br>')
           }
 
@@ -707,10 +853,10 @@
             })
           }
 
-          function renderStats(stats) {
+          function renderStats(stats, keepCase) {
             return stats.map(function(pair) {
               return '<div class="case-stat"><div class="case-stat__value trim-inter">' + renderStatValue(String(pair[
-                0])) + '</div><div class="case-stat__label trim-inter">' + renderStatLabel(pair[1]) +
+                0])) + '</div><div class="case-stat__label trim-inter">' + renderStatLabel(pair[1], keepCase) +
                 '</div></div>'
             }).join('')
           }
@@ -719,12 +865,14 @@
             if (!disclosure) return;
             disclosure.classList.toggle('is-open', open);
             if (userAction) disclosure.classList.toggle('is-user-closed', !open);
+            if (open) disclosure.setAttribute('data-open-order', String(++S.overlay.openOrder));
+            else disclosure.removeAttribute('data-open-order');
             var btn = disclosure.querySelector('.case-disclosure__toggle');
             if (btn) btn.setAttribute('aria-expanded', String(open));
             if (open) animateCaseStats(disclosure)
           }
 
-          function fitCaseAccordion(protectedDisclosure) {
+          function fitCaseAccordion() {
             if (!S.overlay.open || !E.stage) return;
             var frame = E.stage.querySelector('.case-stage__frame'),
               accordion = E.bodyPane && E.bodyPane.querySelector('.case-accordion');
@@ -732,32 +880,36 @@
             var frameBox = frame.getBoundingClientRect(),
               accordionBox = accordion.getBoundingClientRect();
             if (accordionBox.bottom <= frameBox.bottom + 1) return;
-            var openItems = $$('.case-disclosure.is-open', accordion),
-              firstOpen = openItems[0],
-              target = firstOpen;
-            if (!target) return;
-            if (firstOpen === protectedDisclosure) {
-              target = openItems.slice().reverse().find(function(item) {
-                return item !== protectedDisclosure
-              })
+            var closed = 0;
+            while (accordionBox.bottom > frameBox.bottom + 1 && closed < 2) {
+              var openItems = $$('.case-disclosure.is-open', accordion),
+                latestItems = openItems.slice().sort(function(a, b) {
+                  return Number(b.getAttribute('data-open-order') || 0) - Number(a.getAttribute(
+                    'data-open-order') || 0)
+                }).slice(0, 2),
+                target = openItems.find(function(item) {
+                  return latestItems.indexOf(item) === -1
+                });
+              if (!target) return;
+              setDisclosureOpen(target, false, false);
+              accordionBox = accordion.getBoundingClientRect();
+              closed++
             }
-            if (!target) return;
-            setDisclosureOpen(target, false, false)
           }
 
-          function scheduleCaseFit(protectedDisclosure) {
+          function scheduleCaseFit() {
             if (T.caseFit) cancelAnimationFrame(T.caseFit);
             T.caseFit = requestAnimationFrame(function() {
               T.caseFit = null;
-              fitCaseAccordion(protectedDisclosure)
+              fitCaseAccordion()
             })
           }
 
-          function scheduleCaseFitAfterMotion(protectedDisclosure) {
+          function scheduleCaseFitAfterMotion() {
             if (T.caseFitMotion) clearTimeout(T.caseFitMotion);
             T.caseFitMotion = setTimeout(function() {
               T.caseFitMotion = null;
-              fitCaseAccordion(protectedDisclosure)
+              fitCaseAccordion()
             }, 260)
           }
 
@@ -805,9 +957,10 @@
           function renderMediaItem(media) {
             var cls = 'case-media__item case-media__item--' + (media.type === 'video' ? 'video' : 'image'),
               fit = media.fit === 'cover' ? 'cover' : 'contain',
+              layout = media.layout === 'third' ? 'third' : 'full',
               src = escapeHtml(media.src || '');
             if (media.html) {
-              return '<figure class="' + cls + '" data-fit="' + fit + '"><div class="case-media__embed">' +
+              return '<figure class="' + cls + '" data-fit="' + fit + '" data-layout="' + layout + '"><div class="case-media__embed">' +
                 media.html + '</div></figure>'
             }
             if (media.type === 'video') {
@@ -815,11 +968,11 @@
                 return '<source src="' + escapeHtml(source.src || '') + '"' + (source.type ? ' type="' +
                   escapeHtml(source.type) + '"' : '') + '>'
               }).join('') : (src ? '<source src="' + src + '">' : '');
-              return '<figure class="' + cls + '" data-fit="' + fit +
+              return '<figure class="' + cls + '" data-fit="' + fit + '" data-layout="' + layout +
                 '"><video autoplay muted loop playsinline preload="metadata"' + (media.poster ? ' poster="' +
                   escapeHtml(media.poster) + '"' : '') + '>' + sources + '</video></figure>'
             }
-            return '<figure class="' + cls + '" data-fit="' + fit + '"><img src="' + src + '" alt="' +
+            return '<figure class="' + cls + '" data-fit="' + fit + '" data-layout="' + layout + '"><img src="' + src + '" alt="' +
               escapeHtml(media.alt || '') + '" loading="lazy"></figure>'
           }
 
@@ -857,21 +1010,19 @@
             if (!item) return;
             var flow = buildCaseFlow(item),
               hasMedia = item.media && item.media.length;
-            cls(E.stage, 'has-media', !!hasMedia);
+            S.overlay.openOrder = 0;
             html(E.cat, fmt(item.cat || ''));
             html(E.brand, fmt((item.brand || '').replace('Burger King', 'Бургер Кинг')));
             html(E.title, fmt(item.title || ''));
             E.bodyPane.innerHTML = '';
             if (hasMedia) E.bodyPane.appendChild(renderMedia(item.media));
-            E.bodyPane.appendChild(renderCaseAccordion(flow, item.stats || []));
-            hyphenateCaseText();
+            E.bodyPane.appendChild(renderCaseAccordion(flow, item.stats || [], item.awards || []));
             scheduleCaseFit();
             syncUiState()
           }
 
           function toggleStage(open) {
             S.overlay.open = !!open;
-            cls(E.grid, 'case-focus-active', open);
             cls(E.stage, 'open', open);
             E.stage.setAttribute('aria-hidden', String(!open));
             [E.w, E.nav, E.menu].forEach(function(el) {
@@ -885,18 +1036,71 @@
             if (S.overlay.caseIndex === i || !D.cases[i]) return;
             S.overlay.caseIndex = i;
             renderCase(i);
-            E.cards.forEach(function(card, n) {
-              cls(card, 'is-active', n === i)
-            });
             toggleStage(true)
+          }
+
+          function openMoreCases() {
+            if (S.overlay.caseIndex === -1) return;
+            S.overlay.caseIndex = -1;
+            clear('morePromptSwap');
+            clear('morePromptEnterDone');
+            html(E.cat, 'Доступ по паролю');
+            html(E.brand, '');
+            html(E.title, 'Еще больше кейсов');
+            E.bodyPane.innerHTML =
+              '<div class="case-password-promo">' +
+              '<div class="case-password-promo__stack">' +
+              '<div class="case-password-promo__title heading" id="case-password-promo-a">ОТПРАВЬТЕ<br>НАМ СВОЙ<br>БРИФ</div>' +
+              '<div class="case-password-promo__title heading hide" id="case-password-promo-b">МЫ ПРИШЛЕМ<br>ВАМ<br>ПАРОЛЬ</div>' +
+              '</div>' +
+              '</div>' +
+              '<form class="case-password" id="case-password-form">' +
+              '<label class="case-password__label" for="case-password-input">Введите пароль</label>' +
+              '<div class="case-password__row">' +
+              '<input class="case-password__input" id="case-password-input" type="password" autocomplete="current-password" inputmode="text">' +
+              '<button class="case-password__submit" type="submit">Открыть</button>' +
+              '</div>' +
+              '<p class="case-password__message" aria-live="polite"></p>' +
+              '</form>';
+            toggleStage(true);
+            var form = $('#case-password-form'),
+              input = $('#case-password-input', form),
+              message = $('.case-password__message', form);
+            input && input.focus({
+              preventScroll: true
+            });
+            var promptA = $('#case-password-promo-a'),
+              promptB = $('#case-password-promo-b');
+            applyNeonLetters(promptA);
+            applyNeonLetters(promptB);
+            T.morePromptSwap = setTimeout(function() {
+              if (promptA) promptA.classList.add('contact-title--dissolve-out');
+              T.morePromptEnterDone = setTimeout(function() {
+                if (promptA) {
+                  promptA.classList.add('off');
+                  promptA.classList.remove('contact-title--dissolve-out')
+                }
+                if (promptB) {
+                  promptB.classList.remove('hide', 'off');
+                  promptB.classList.add('contact-title--dissolve-in');
+                  setTimeout(function() {
+                    promptB.classList.remove('contact-title--dissolve-in')
+                  }, 340)
+                }
+              }, 340)
+            }, D.heroIntroDelayMs);
+            form && form.addEventListener('submit', function(e) {
+              e.preventDefault();
+              form.classList.add('is-invalid');
+              txt(message, 'Пароль нужен для доступа к закрытым кейсам.')
+            })
           }
 
           function closeCase() {
             if (S.overlay.caseIndex == null) return;
             S.overlay.caseIndex = null;
-            E.cards.forEach(function(card) {
-              card.classList.remove('is-active')
-            });
+            clear('morePromptSwap');
+            clear('morePromptEnterDone');
             toggleStage(false)
           }
 
@@ -964,16 +1168,10 @@
             txt(E.mskStatus, zoneStatus(mskZone))
           }
 
+          setupNeonLetters();
           setupClientCounts();
           renderCaseCards();
-          var casesReady = fetchCases(),
-            frameObserver = window.ResizeObserver ? new ResizeObserver(function() {
-              if (S.overlay.open && S.overlay.caseIndex != null) renderCase(S.overlay.caseIndex)
-            }) : null;
-          if (frameObserver && E.stage) {
-            var frame = E.stage.querySelector('.case-stage__frame');
-            frame && frameObserver.observe(frame)
-          }
+          var casesReady = fetchCases();
           addEventListener('resize', function() {
             setMenu(false);
             updateMaster();
@@ -1042,6 +1240,7 @@
               })
             })
           });
+          $('.cases-more', E.grid) && $('.cases-more', E.grid).addEventListener('click', openMoreCases);
           E.close && E.close.addEventListener('click', closeCase);
           E.stage && E.stage.addEventListener('click', function(e) {
             var disclosureBtn = e.target.closest && e.target.closest('.case-disclosure__toggle');
@@ -1049,8 +1248,8 @@
               var disclosure = disclosureBtn.closest('.case-disclosure'),
                 open = !disclosure.classList.contains('is-open');
               setDisclosureOpen(disclosure, open, true);
-              if (open) scheduleCaseFitAfterMotion(disclosure);
-              else scheduleCaseFit(null);
+              if (open) scheduleCaseFitAfterMotion();
+              else scheduleCaseFit();
               return
             }
             if (e.target === E.stage || e.target.classList.contains('case-stage__blur')) closeCase()
@@ -1059,7 +1258,7 @@
             var disclosure = e.target.closest && e.target.closest('.case-disclosure');
             if (!disclosure || disclosure.classList.contains('is-open') || disclosure.classList.contains('is-user-closed')) return;
             setDisclosureOpen(disclosure, true, false);
-            scheduleCaseFitAfterMotion(disclosure)
+            scheduleCaseFitAfterMotion()
           });
           E.stage && E.stage.addEventListener('pointerenter', function(e) {
             var media = e.target.closest && e.target.closest('.case-media');

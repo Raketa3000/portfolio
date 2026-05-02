@@ -13,5 +13,9 @@
     ["1M", ["MEDIA", "VIEWS"]],
     ["15M", ["VKONTAKTE", "VIEWS"]],
     ["5.52%", ["ENGAGMENT RATE"]]
+  ],
+  "awards": [
+    ["1", ["Shortlist", "ABA"]],
+    ["3", ["Silver", "SM, Proxima"]]
   ]
 }
