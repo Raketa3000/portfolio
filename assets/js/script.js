@@ -107,7 +107,7 @@
               contactLoopStartDelayMs: 2400,
               glyphs: 'АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯABCDEFGHIJKLMNOPQRSTUVWXYZ',
               heroIntroDelayMs: 1600,
-              heroLoopStartDelayMs: 2000,
+              heroLoopStartDelayMs: 2400,
               scrambleMs: 1100,
               loopMs: 1750,
               transitionMs: 750,
@@ -267,7 +267,8 @@
               return '<article class="case-card fu' + (i ? ' td-' + i : '') + '" data-case-index="' + i +
                 '"><div class="case-title heading">' + title + '</div></article>'
             }).join('') +
-              '<button class="cases-more fu td-5" type="button"><span class="case-title heading">Еще больше кейсов</span></button>';
+              '<button class="cases-more fu td-5" type="button"><span class="case-title heading"><span class="case-title__line">' +
+              fmt('Еще больше кейсов') + '</span></span></button>';
             E.cards = $$('.case-card')
           }
 
@@ -439,6 +440,8 @@
               cancelFrame(k)
             });
             clear('heroIntro');
+            clear('heroSwap');
+            clear('heroEnterDone');
             clear('heroSecondLine');
             clear('heroLoopTicker', true);
             clear('contactLoopTicker', true);
@@ -446,9 +449,9 @@
             clear('contactSecondLine');
             clear('contactSwap');
             clear('contactEnterDone');
-            E.heroA && E.heroA.classList.remove('off', 'hide');
+            E.heroA && E.heroA.classList.remove('off', 'hide', 'hero-title--dissolve-out', 'hero-title--dissolve-in');
             if (E.heroB) {
-              E.heroB.classList.remove('off', 'hide');
+              E.heroB.classList.remove('off', 'hide', 'hero-title--dissolve-out', 'hero-title--dissolve-in');
               E.heroB.classList.add('hide')
             }
             if (E.heroLoop) {
@@ -472,9 +475,9 @@
           }
 
           function resetHeroTitle() {
-            E.heroA && E.heroA.classList.remove('off', 'hide');
+            E.heroA && E.heroA.classList.remove('off', 'hide', 'hero-title--dissolve-out', 'hero-title--dissolve-in');
             if (E.heroB) {
-              E.heroB.classList.remove('off', 'hide');
+              E.heroB.classList.remove('off', 'hide', 'hero-title--dissolve-out', 'hero-title--dissolve-in');
               E.heroB.classList.add('hide')
             }
             if (E.heroLoop) {
@@ -503,6 +506,8 @@
           function stopHeroMotion(resetVisual) {
             cancelFrame('heroScramble');
             clear('heroIntro');
+            clear('heroSwap');
+            clear('heroEnterDone');
             clear('heroSecondLine');
             clear('heroLoopTicker', true);
             if (resetVisual) resetHeroTitle()
@@ -533,12 +538,31 @@
 
           function scheduleHero() {
             clear('heroIntro');
+            clear('heroSwap');
+            clear('heroEnterDone');
             clear('heroSecondLine');
             if (curr() !== 's0') return;
             T.heroIntro = setTimeout(function() {
-              if (curr() === 's0') {
-                cls(E.heroA, 'off', true);
-                cls(E.heroB, 'hide', false)
+              if (curr() === 's0' && E.heroA) {
+                E.heroA.classList.add('hero-title--dissolve-out');
+                T.heroSwap = setTimeout(function() {
+                  if (curr() !== 's0') return;
+                  E.heroA.classList.add('off');
+                  E.heroA.classList.remove('hero-title--dissolve-out');
+                  if (E.heroB) {
+                    E.heroB.classList.remove('hide', 'off');
+                    E.heroB.classList.add('hero-title--dissolve-in');
+                    T.heroEnterDone = setTimeout(function() {
+                      E.heroB.classList.remove('hero-title--dissolve-in')
+                    }, 440)
+                  }
+                }, 500)
+              } else if (curr() === 's0' && E.heroB) {
+                E.heroB.classList.remove('hide', 'off');
+                E.heroB.classList.add('hero-title--dissolve-in');
+                T.heroEnterDone = setTimeout(function() {
+                  E.heroB.classList.remove('hero-title--dissolve-in')
+                }, 440)
               }
             }, D.heroIntroDelayMs);
             T.heroSecondLine = setTimeout(function() {
@@ -643,15 +667,15 @@
                     second.classList.add('contact-title--dissolve-in');
                     T.contactEnterDone = setTimeout(function() {
                       second.classList.remove('contact-title--dissolve-in')
-                    }, 340)
-                  }
-                }, 340)
+                }, 440)
+              }
+                }, 500)
               } else if (second) {
                 second.classList.remove('hide', 'off');
                 second.classList.add('contact-title--dissolve-in');
                 T.contactEnterDone = setTimeout(function() {
                   second.classList.remove('contact-title--dissolve-in')
-                }, 340)
+                }, 440)
               }
             }, D.contactIntroDelayMs);
             T.contactSecondLine = setTimeout(function() {
@@ -1085,9 +1109,9 @@
                   promptB.classList.add('contact-title--dissolve-in');
                   setTimeout(function() {
                     promptB.classList.remove('contact-title--dissolve-in')
-                  }, 340)
+                  }, 440)
                 }
-              }, 340)
+              }, 500)
             }, D.heroIntroDelayMs);
             form && form.addEventListener('submit', function(e) {
               e.preventDefault();
