@@ -8,6 +8,38 @@
     "insight": "Пользователи воспринимают связь как данность, но редко задумываются, какое количество технологий, инфраструктуры и экспертизы стоит за стабильным сигналом каждый день.",
     "solution": "билайн запустил научно-популярный мини-сериал «Это вышка!» - три выпуска, снятые в Москве, Санкт-Петербурге и Калининграде с блогером Яном Топлесом. Вместе с экспертами бренда он показал, как устроена мобильная связь: как работают базовые станции, как сигнал доходит до пользователей даже в сложной городской среде и как сами вышки получают интернет."
   },
+  "media": [
+    {
+      "type": "image",
+      "src": "assets/cases/media/eto-vyshka-cover.png",
+      "alt": "Обложка мини-сериала Это вышка",
+      "fit": "contain"
+    },
+    {
+      "type": "video",
+      "html": "<iframe src=\"https://vkvideo.ru/video_ext.php?oid=-26514504&id=456244092&hd=4&hash=a6dd959277abb311&autoplay=1\" width=\"1920\" height=\"1080\" style=\"background-color: #000\" allow=\"autoplay; encrypted-media; fullscreen; picture-in-picture; screen-wake-lock;\" frameborder=\"0\" allowfullscreen></iframe>",
+      "caption": "Как устроена связь",
+      "fit": "contain"
+    },
+    {
+      "type": "video",
+      "html": "<iframe src=\"https://vkvideo.ru/video_ext.php?oid=-14899079&id=456243736&hd=4&hash=95811827150e41ba\" width=\"1920\" height=\"1080\" style=\"background-color: #000\" allow=\"autoplay; encrypted-media; fullscreen; picture-in-picture; screen-wake-lock;\" frameborder=\"0\" allowfullscreen></iframe>",
+      "caption": "билайн в большом городе",
+      "fit": "contain"
+    },
+    {
+      "type": "video",
+      "html": "<iframe src=\"https://vkvideo.ru/video_ext.php?oid=-14899079&id=456243737&hd=4&hash=68551a22f6100979\" width=\"1920\" height=\"1080\" style=\"background-color: #000\" allow=\"autoplay; encrypted-media; fullscreen; picture-in-picture; screen-wake-lock;\" frameborder=\"0\" allowfullscreen></iframe>",
+      "caption": "вышка на краю света",
+      "fit": "contain"
+    },
+    {
+      "type": "video",
+      "html": "<iframe src=\"https://vkvideo.ru/video_ext.php?oid=-14899079&id=456243738&hd=4&hash=39814bc123c6b6fc\" width=\"1920\" height=\"1080\" style=\"background-color: #000\" allow=\"autoplay; encrypted-media; fullscreen; picture-in-picture; screen-wake-lock;\" frameborder=\"0\" allowfullscreen></iframe>",
+      "caption": "Видео кейса",
+      "fit": "contain"
+    }
+  ],
   "stats": [
     ["17K", ["SITE", "VISITS"]],
     ["1M", ["MEDIA", "VIEWS"]],

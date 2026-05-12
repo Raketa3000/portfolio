@@ -1,0 +1,101 @@
+{
+  "locale": "ru",
+  "htmlLang": "ru",
+  "meta": {
+    "title": "Marketing & Creative Community",
+    "description": "Коммьюнити экспертов, помогающее топовым российским и международным брендам создавать эффективную и заметную коммуникацию в digital.",
+    "keywords": "коммьюнити экспертов, стратегия, креатив, digital, коммуникация, бренды, реклама"
+  },
+  "nav": {
+    "label": "Навигация",
+    "next": "Далее",
+    "dev": "DEV-сетка",
+    "items": {
+      "s1": "services",
+      "s1-2": "clients",
+      "s2": "works",
+      "s3": "contact"
+    }
+  },
+  "hero": {
+    "first": "МЫ НЕ ДЕЛАЕМ<br>РЕКЛАМУ",
+    "secondLead": "МЫ СОЗДАЕМ",
+    "desire": "ЖЕЛАНИЕ",
+    "copy": "Мы коммьюнити экспертов, помогающее<br>топовым российским и&nbsp;международным брендам<br>создавать эффективную и&nbsp;заметную коммуникацию в&nbsp;digital",
+    "words": ["ПРОБОВАТЬ", "СМОТРЕТЬ", "ИСКАТЬ", "ПОКУПАТЬ"]
+  },
+  "services": {
+    "label": "SERVICES",
+    "cards": [
+      {
+        "title": "СТРАТЕГИЯ",
+        "description": "Аналитика, тактические решения, коммуникационные, креативные, IMM&nbsp;и&nbsp;SMM стратегии"
+      },
+      {
+        "title": "КРЕАТИВ",
+        "description": "Big idea, креативные рамки, концепты виральных роликов и&nbsp;идеи спецпроектов."
+      },
+      {
+        "title": "КОМАНДА",
+        "description": "Порекомендуем или соберем под вас проектную команду от&nbsp;дизайнеров до&nbsp;инфлюенс-менеджера"
+      },
+      {
+        "title": "DIGITAL 360°",
+        "description": "Разрабатываем полноценные кампании от&nbsp;аналитики и&nbsp;стратегии до&nbsp;креатива и&nbsp;шагов по&nbsp;реализации"
+      }
+    ]
+  },
+  "clients": {
+    "label": "CLIENTS"
+  },
+  "works": {
+    "label": "WORKS",
+    "more": "Еще больше кейсов"
+  },
+  "contact": {
+    "first": "ПОКА<br>ВЫ СПИТЕ<br>МЫ РАБОТАЕМ",
+    "secondPrefix": "ДАВАЙТЕ<br>СДЕЛАЕМ",
+    "secondSuffix": "ВМЕСТЕ",
+    "words": ["СТРАТЕГИЮ", "КРЕАТИВ", "ПРОЕКТ", "КАМПАНИЮ"],
+    "profiles": {
+      "leftAlt": "Дмитрий Банников",
+      "rightAlt": "Глеб Янковский",
+      "leftRole": "Strategy director",
+      "leftName": "ДМИТРИЙ<br>БАННИКОВ",
+      "rightRole": "Creative director",
+      "rightName": "ГЛЕБ<br>ЯНКОВСКИЙ"
+    },
+    "locations": {
+      "ba": "Буэнос-Айрес",
+      "msk": "Москва",
+      "working": "работает",
+      "sleeping": "спит"
+    },
+    "briefs": {
+      "strategyLabel": "Бриф по стратегии",
+      "creativeLabel": "Бриф по креативу",
+      "send": "ПРИСЛАТЬ",
+      "channel": "в телеграм"
+    }
+  },
+  "caseStage": {
+    "close": "Закрыть кейс",
+    "moreAccess": "Доступ по паролю",
+    "moreTitle": "Еще больше кейсов",
+    "promptA": "ОТПРАВЬТЕ<br>НАМ СВОЙ<br>БРИФ",
+    "promptB": "МЫ ПРИШЛЕМ<br>ВАМ<br>ПАРОЛЬ",
+    "passwordLabel": "Введите пароль",
+    "passwordSubmit": "Открыть",
+    "passwordError": "Пароль нужен для доступа к закрытым кейсам.",
+    "fieldTitles": {
+      "context": "Контекст",
+      "task": "Задача",
+      "insight": "Инсайт",
+      "strategy": "Стратегия",
+      "solution": "Решение",
+      "strategic_solution": "Стратегическое решение",
+      "result": "Результат",
+      "awards": "Награды"
+    }
+  }
+}

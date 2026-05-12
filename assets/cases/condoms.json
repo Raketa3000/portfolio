@@ -11,5 +11,15 @@
     "solution": "",
     "result": "Стратегия перешла в тестирование креативных гипотез. Разработано два концепта и проведён A/B-тест в соцсетях и на маркетплейсах."
   },
+  "media": [
+    {
+      "type": "image",
+      "src": "assets/cases/media/condoms-hands-transparent.gif",
+      "alt": "Анимированные руки с упаковками презервативов на прозрачном фоне",
+      "fit": "contain",
+      "gridRow": "2/span 2",
+      "alignSelf": "center"
+    }
+  ],
   "stats": []
 }

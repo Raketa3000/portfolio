@@ -1515,9 +1515,9 @@
 
       .case-media {
         grid-column: var(--gc);
-        grid-row: var(--gr)/span 4;
+        grid-row: var(--gr);
         display: grid;
-        grid-template-columns: repeat(3, minmax(0, 1fr));
+        grid-template-columns: repeat(6, minmax(0, 1fr));
         gap: 0;
         align-self: start;
         min-width: 0;
@@ -1544,12 +1544,17 @@
       }
 
       .case-media__item[data-layout="third"] {
-        grid-column: span 1
+        grid-column: span 2
+      }
+
+      .case-media__item[data-layout="half"] {
+        grid-column: span 3
       }
 
       .case-media__item img,
       .case-media__item video,
       .case-media__embed,
+      .case-media__item>iframe,
       .case-media__embed iframe {
         display: block;
         width: 100%
@@ -1557,6 +1562,7 @@
 
       .case-media__item video,
       .case-media__embed,
+      .case-media__item>iframe,
       .case-media__embed iframe {
         height: 100%
       }
@@ -1574,6 +1580,39 @@
       .case-media__item--video {
         aspect-ratio: 16/9
       }
+
+      .case-media__item[data-aspect="portrait"] {
+        aspect-ratio: 9/16;
+        min-height: 0
+      }
+
+      .case-media__item[data-aspect="wide"] {
+        aspect-ratio: 16/10;
+        background: transparent
+      }
+
+      .case-media__item .tiktok-embed {
+        width: 100%;
+        min-width: 0;
+        max-width: none;
+        margin: 0;
+        background: #000
+      }
+
+      .case-media__tiktok-player {
+        border: 0;
+        background: #000
+      }
+
+      .case-media__fallback-link {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0 0 0 0);
+        white-space: nowrap
+      }
+
 
       .case-media__embed iframe {
         border: 0
@@ -2010,6 +2049,9 @@
           max-height: none;
           overflow: visible;
         }
+        .case-media__item[data-aspect="portrait"] {
+          grid-column: 1/-1;
+        }
 
         .case-stage__stats {
           grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -2117,6 +2159,9 @@
           grid-row: var(--gr);
           max-height: none;
           overflow: visible;
+        }
+        .case-media__item[data-aspect="portrait"] {
+          grid-column: 1/-1;
         }
 
         .case-stage__stats {

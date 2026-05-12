@@ -87,16 +87,7 @@
                 wideHeightThreshold: 210,
                 fallbackWideChars: 300
               },
-              fieldTitles: {
-                context: 'Контекст',
-                task: 'Задача',
-                insight: 'Инсайт',
-                strategy: 'Стратегия',
-                solution: 'Решение',
-                strategic_solution: 'Стратегическое решение',
-                result: 'Результат',
-                awards: 'Награды'
-              }
+              fieldTitles: {}
             },
             D = {
               cases: [],
@@ -114,10 +105,12 @@
               menuAnimationMs: 900,
               sectionLock: 650,
               backIcon: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"></path><path d="M3 3v6h6"></path></svg>',
-              caseDataVersion: '2026-05-01-awards',
+              caseDataVersion: '2026-05-12-media-load-optimizations',
               caseFiles: ['beeline-eto-vyshka', 'beeline-kiberbitva-s-moshennikami', 'letual-prohor-shalyapin',
                 'burger-king', 'condoms'
-              ]
+              ],
+              supportedLocales: ['ru', 'en', 'es-la'],
+              defaultLocale: 'ru'
             },
             T = {},
             S = {
@@ -135,7 +128,9 @@
               },
               ui: {
                 dev: false
-              }
+              },
+              locale: D.defaultLocale,
+              i18n: null
             };
           var ids = E.secs.map(function(s) {
               return s.id
@@ -172,6 +167,136 @@
             toRawUrl = function(v) {
               return 'assets/cases/' + v + '.json?v=' + encodeURIComponent(D.caseDataVersion)
             };
+
+          function mergeDeep(base, extra) {
+            var out = Array.isArray(base) ? base.slice() : Object.assign({}, base || {});
+            Object.keys(extra || {}).forEach(function(key) {
+              var value = extra[key],
+                prev = out[key];
+              out[key] = value && typeof value === 'object' && !Array.isArray(value) && prev && typeof prev ===
+                'object' && !Array.isArray(prev) ? mergeDeep(prev, value) : value
+            });
+            return out
+          }
+
+          function localeFromRequest() {
+            var fromUrl = new URLSearchParams(location.search).get('lang'),
+              requested = String(fromUrl || '').toLowerCase(),
+              languages = Array.prototype.slice.call(navigator.languages || [navigator.language || '']),
+              detected;
+            if (D.supportedLocales.indexOf(requested) > -1) return requested;
+            detected = languages.map(function(lang) {
+              lang = String(lang || '').toLowerCase();
+              if (lang === 'es-la' || lang === 'es-419' || lang.indexOf('es-') === 0 || lang === 'es') return 'es-la';
+              if (lang.indexOf('en') === 0) return 'en';
+              if (lang.indexOf('ru') === 0) return 'ru';
+              return ''
+            }).find(function(lang) {
+              return D.supportedLocales.indexOf(lang) > -1
+            });
+            return detected || D.defaultLocale
+          }
+
+          function fetchLocale(locale) {
+            return fetch('assets/i18n/' + locale + '.json?v=' + encodeURIComponent(D.caseDataVersion)).then(function(r) {
+              if (!r.ok) throw new Error(locale);
+              return r.json()
+            })
+          }
+
+          function loadLocale() {
+            var locale = localeFromRequest();
+            return fetchLocale(D.defaultLocale).then(function(base) {
+              if (locale === D.defaultLocale) return base;
+              return fetchLocale(locale).then(function(extra) {
+                return mergeDeep(base, extra)
+              }).catch(function() {
+                return base
+              })
+            }).then(function(dict) {
+              S.locale = dict.locale || locale;
+              S.i18n = dict;
+              return dict
+            })
+          }
+
+          function setHtml(selector, value, root) {
+            var el = $(selector, root);
+            if (el && value != null) html(el, value)
+          }
+
+          function setText(selector, value, root) {
+            var el = $(selector, root);
+            if (el && value != null) txt(el, value)
+          }
+
+          function applyLocale(dict) {
+            var meta = dict.meta || {},
+              nav = dict.nav || {},
+              hero = dict.hero || {},
+              services = dict.services || {},
+              clients = dict.clients || {},
+              works = dict.works || {},
+              contact = dict.contact || {},
+              caseStage = dict.caseStage || {};
+            E.root.lang = dict.htmlLang || dict.locale || D.defaultLocale;
+            E.root.setAttribute('xml:lang', dict.htmlLang || dict.locale || D.defaultLocale);
+            E.body.setAttribute('data-locale', dict.locale || D.defaultLocale);
+            if (meta.title) document.title = meta.title;
+            setAttr('meta[name="description"]', 'content', meta.description);
+            setAttr('meta[name="keywords"]', 'content', meta.keywords);
+            if (E.nav && nav.label) E.nav.setAttribute('aria-label', nav.label);
+            if (E.btn && nav.next) E.btn.setAttribute('aria-label', nav.next);
+            if (E.dev && nav.dev) E.dev.setAttribute('aria-label', nav.dev);
+            Object.keys(nav.items || {}).forEach(function(id) {
+              setText('.menu__item[data-target="' + id + '"]', nav.items[id])
+            });
+            setHtml('#h-a', hero.first);
+            if (E.heroB) E.heroB.innerHTML = (hero.secondLead || '') + '<br><span class="hero-inline-wrap">' +
+              (hero.desire || '') + '</span><br><span class="hero-loop-line"><span id="h-loop"></span></span>';
+            E.heroLoop = $('#h-loop');
+            setHtml('.hero-copy', hero.copy);
+            D.heroWords = hero.words || D.heroWords;
+            setText('#s1 .services-label', services.label);
+            $$('#s1 .service-card').forEach(function(card, i) {
+              var data = services.cards && services.cards[i];
+              if (!data) return;
+              setHtml('.card-title', data.title, card);
+              setHtml('.card-desc', data.description, card)
+            });
+            setText('#s1-2 .services-label', clients.label);
+            setText('#s2 .services-label', works.label);
+            setHtml('#contact-a', contact.first);
+            if ($('#contact-b')) $('#contact-b').innerHTML = (contact.secondPrefix || '') + '<br><span id="contact-loop"></span><br>' +
+              (contact.secondSuffix || '');
+            E.contactLoop = $('#contact-loop');
+            D.contactWords = contact.words || D.contactWords;
+            var profiles = contact.profiles || {};
+            setAttr('.contact-photo--left img', 'alt', profiles.leftAlt);
+            setAttr('.contact-photo--right img', 'alt', profiles.rightAlt);
+            setHtml('.contact-member--left .case-cat', profiles.leftRole);
+            setHtml('.contact-member--left .card-title', profiles.leftName);
+            setHtml('.contact-member--right .case-cat', profiles.rightRole);
+            setHtml('.contact-member--right .card-title', profiles.rightName);
+            var locations = contact.locations || {};
+            setText('.contact-info--ba .contact-info__label', locations.ba);
+            setText('.contact-info--msk .contact-info__label', locations.msk);
+            var briefs = contact.briefs || {};
+            setText('.contact-info--telegram .contact-info__label', briefs.strategyLabel);
+            setText('.contact-info--email .contact-info__label', briefs.creativeLabel);
+            $$('.contact-info__link-word').forEach(function(el) { txt(el, briefs.send || el.textContent) });
+            $$('.contact-info__subvalue').forEach(function(el) {
+              if (el.id !== 'ba-status' && el.id !== 'msk-status') txt(el, briefs.channel || el.textContent)
+            });
+            if (E.close && caseStage.close) E.close.setAttribute('aria-label', caseStage.close);
+            SITE_DATA.fieldTitles = caseStage.fieldTitles || SITE_DATA.fieldTitles;
+            SITE_DATA.previewsMoreLabel = works.more || SITE_DATA.previewsMoreLabel
+          }
+
+          function setAttr(selector, attr, value) {
+            var el = $(selector);
+            if (el && value != null) el.setAttribute(attr, value)
+          }
 
           function whenFontsReady(fn) {
             if (!document.fonts || !document.fonts.ready) {
@@ -268,7 +393,7 @@
                 '"><div class="case-title heading">' + title + '</div></article>'
             }).join('') +
               '<button class="cases-more fu td-5" type="button"><span class="case-title heading"><span class="case-title__line">' +
-              fmt('Еще больше кейсов') + '</span></span></button>';
+              fmt(SITE_DATA.previewsMoreLabel || 'Еще больше кейсов') + '</span></span></button>';
             E.cards = $$('.case-card')
           }
 
@@ -291,10 +416,11 @@
               title: item.title || '',
               detail: normalizedDetail,
               media: Array.isArray(item.media) ? item.media.filter(function(media) {
-                return media && typeof media === 'object' && (media.src || media.sources || media.html)
+                return media && typeof media === 'object' && (media.src || media.sources || media.html || media.id)
               }).map(function(media) {
                 return {
                   type: media.type || 'image',
+                  id: media.id || '',
                   src: media.src || '',
                   sources: Array.isArray(media.sources) ? media.sources : [],
                   poster: media.poster || '',
@@ -302,6 +428,11 @@
                   caption: media.caption || '',
                   fit: media.fit || 'contain',
                   layout: media.layout || 'full',
+                  aspect: media.aspect || '',
+                  gridColumn: media.gridColumn || '',
+                  gridRow: media.gridRow || '',
+                  alignSelf: media.alignSelf || '',
+                  justifySelf: media.justifySelf || '',
                   html: media.html || ''
                 }
               }) : [],
@@ -979,26 +1110,48 @@
           }
 
           function renderMediaItem(media) {
-            var cls = 'case-media__item case-media__item--' + (media.type === 'video' ? 'video' : 'image'),
+            var cls = 'case-media__item case-media__item--' + (media.type === 'video' || media.type === 'tiktok' ? 'video' : 'image'),
               fit = media.fit === 'cover' ? 'cover' : 'contain',
-              layout = media.layout === 'third' ? 'third' : 'full',
+              layout = media.layout === 'third' || media.layout === 'half' ? media.layout : 'full',
+              aspect = media.aspect === 'portrait' || media.type === 'tiktok' ? 'portrait' : media.aspect === 'wide' ? 'wide' : 'default',
               src = escapeHtml(media.src || '');
+            if (media.type === 'tiktok') {
+              var videoId = escapeHtml(media.id || ''),
+                url = src || (videoId ? 'https://www.tiktok.com/@letoile_official/video/' + videoId : ''),
+                player = 'https://www.tiktok.com/player/v1/' + videoId +
+                  '?autoplay=0&muted=0&controls=1&progress_bar=1&play_button=1&volume_control=1&fullscreen_button=0&timestamp=0&music_info=0&description=0&rel=0&native_context_menu=0&closed_caption=0';
+              return '<figure class="' + cls + '" data-fit="' + fit + '" data-layout="' + layout + '" data-aspect="' +
+                aspect + '"><iframe class="case-media__tiktok-player" src="' + player +
+                '" title="TikTok video" allow="fullscreen" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe><a class="case-media__fallback-link" target="_blank" rel="noopener noreferrer" href="' +
+                url + '">Смотреть TikTok</a></figure>'
+            }
             if (media.html) {
-              return '<figure class="' + cls + '" data-fit="' + fit + '" data-layout="' + layout + '"><div class="case-media__embed">' +
-                media.html + '</div></figure>'
+              return '<figure class="' + cls + '" data-fit="' + fit + '" data-layout="' + layout + '" data-aspect="' +
+                aspect + '"><div class="case-media__embed">' +
+                optimizeEmbedHtml(media.html) + '</div></figure>'
             }
             if (media.type === 'video') {
               var sources = media.sources.length ? media.sources.map(function(source) {
                 return '<source src="' + escapeHtml(source.src || '') + '"' + (source.type ? ' type="' +
                   escapeHtml(source.type) + '"' : '') + '>'
               }).join('') : (src ? '<source src="' + src + '">' : '');
-              return '<figure class="' + cls + '" data-fit="' + fit + '" data-layout="' + layout +
+              return '<figure class="' + cls + '" data-fit="' + fit + '" data-layout="' + layout + '" data-aspect="' + aspect +
                 '"><video autoplay muted loop playsinline preload="metadata"' + (media.poster ? ' poster="' +
                   escapeHtml(media.poster) + '"' : '') + '>' + sources + '</video></figure>'
             }
-            return '<figure class="' + cls + '" data-fit="' + fit + '" data-layout="' + layout + '"><img src="' + src + '" alt="' +
-              escapeHtml(media.alt || '') + '" loading="lazy"></figure>'
+            return '<figure class="' + cls + '" data-fit="' + fit + '" data-layout="' + layout + '" data-aspect="' + aspect + '"><img src="' + src + '" alt="' +
+              escapeHtml(media.alt || '') + '" loading="lazy" decoding="async" fetchpriority="low"></figure>'
           }
+
+          function optimizeEmbedHtml(value) {
+            return String(value || '').replace(/<iframe\b([^>]*)>/gi, function(match, attrs) {
+              var out = '<iframe' + attrs;
+              if (!/\sloading=/i.test(attrs)) out += ' loading="lazy"';
+              if (!/\sreferrerpolicy=/i.test(attrs)) out += ' referrerpolicy="strict-origin-when-cross-origin"';
+              return out + '>'
+            })
+          }
+
 
           function renderMedia(media) {
             if (!media.length) return null;
@@ -1007,7 +1160,11 @@
               compact = cols <= 6;
             wrap.className = 'case-media';
             wrap.style.setProperty('--gc', compact ? '1/span ' + cols : '7/span 6');
-            wrap.style.setProperty('--gr', '1');
+            wrap.style.setProperty('--gr', '1/span 4');
+            if (media[0].gridColumn && !compact) wrap.style.setProperty('--gc', media[0].gridColumn);
+            if (media[0].gridRow && !compact) wrap.style.setProperty('--gr', media[0].gridRow);
+            if (media[0].alignSelf) wrap.style.alignSelf = media[0].alignSelf;
+            if (media[0].justifySelf) wrap.style.justifySelf = media[0].justifySelf;
             wrap.innerHTML = media.map(renderMediaItem).join('');
             return wrap
           }
@@ -1068,21 +1225,22 @@
             S.overlay.caseIndex = -1;
             clear('morePromptSwap');
             clear('morePromptEnterDone');
-            html(E.cat, 'Доступ по паролю');
+            var caseStage = S.i18n && S.i18n.caseStage || {};
+            html(E.cat, caseStage.moreAccess || 'Доступ по паролю');
             html(E.brand, '');
-            html(E.title, 'Еще больше кейсов');
+            html(E.title, caseStage.moreTitle || SITE_DATA.previewsMoreLabel || 'Еще больше кейсов');
             E.bodyPane.innerHTML =
               '<div class="case-password-promo">' +
               '<div class="case-password-promo__stack">' +
-              '<div class="case-password-promo__title heading" id="case-password-promo-a">ОТПРАВЬТЕ<br>НАМ СВОЙ<br>БРИФ</div>' +
-              '<div class="case-password-promo__title heading hide" id="case-password-promo-b">МЫ ПРИШЛЕМ<br>ВАМ<br>ПАРОЛЬ</div>' +
+              '<div class="case-password-promo__title heading" id="case-password-promo-a">' + (caseStage.promptA || 'ОТПРАВЬТЕ<br>НАМ СВОЙ<br>БРИФ') + '</div>' +
+              '<div class="case-password-promo__title heading hide" id="case-password-promo-b">' + (caseStage.promptB || 'МЫ ПРИШЛЕМ<br>ВАМ<br>ПАРОЛЬ') + '</div>' +
               '</div>' +
               '</div>' +
               '<form class="case-password" id="case-password-form">' +
-              '<label class="case-password__label" for="case-password-input">Введите пароль</label>' +
+              '<label class="case-password__label" for="case-password-input">' + (caseStage.passwordLabel || 'Введите пароль') + '</label>' +
               '<div class="case-password__row">' +
               '<input class="case-password__input" id="case-password-input" type="password" autocomplete="current-password" inputmode="text">' +
-              '<button class="case-password__submit" type="submit">Открыть</button>' +
+              '<button class="case-password__submit" type="submit">' + (caseStage.passwordSubmit || 'Открыть') + '</button>' +
               '</div>' +
               '<p class="case-password__message" aria-live="polite"></p>' +
               '</form>';
@@ -1116,7 +1274,7 @@
             form && form.addEventListener('submit', function(e) {
               e.preventDefault();
               form.classList.add('is-invalid');
-              txt(message, 'Пароль нужен для доступа к закрытым кейсам.')
+              txt(message, caseStage.passwordError || 'Пароль нужен для доступа к закрытым кейсам.')
             })
           }
 
@@ -1158,7 +1316,7 @@
           }
 
           function formatZoneTime(zone) {
-            return new Intl.DateTimeFormat('ru-RU', {
+            return new Intl.DateTimeFormat((S.i18n && S.i18n.htmlLang) || 'ru-RU', {
               hour: '2-digit',
               minute: '2-digit',
               timeZone: zone
@@ -1179,8 +1337,9 @@
 
           function zoneStatus(zone) {
             var hour = zoneHour(zone),
-              awake = hour >= 9 && hour < 23;
-            return awake ? 'работает' : 'спит'
+              awake = hour >= 9 && hour < 23,
+              locations = S.i18n && S.i18n.contact && S.i18n.contact.locations || {};
+            return awake ? (locations.working || 'работает') : (locations.sleeping || 'спит')
           }
 
           function updateContactClocks() {
@@ -1192,139 +1351,144 @@
             txt(E.mskStatus, zoneStatus(mskZone))
           }
 
-          setupNeonLetters();
-          setupClientCounts();
-          renderCaseCards();
-          var casesReady = fetchCases();
-          addEventListener('resize', function() {
-            setMenu(false);
+          function init() {
+            setupNeonLetters();
+            setupClientCounts();
+            renderCaseCards();
+            var casesReady = fetchCases();
+            addEventListener('resize', function() {
+              setMenu(false);
+              updateMaster();
+              updateDevGrid();
+              if (S.overlay.open && S.overlay.caseIndex != null) renderCase(S.overlay.caseIndex)
+            });
+            addEventListener('wheel', function(e) {
+              if (S.overlay.open) return;
+              var dir = Math.sign ? Math.sign(e.deltaY) : (e.deltaY > 0 ? 1 : e.deltaY < 0 ? -1 : 0);
+              if (S.busy || !dir) return;
+              e.preventDefault();
+              S.wheel += e.deltaY;
+              if (Math.abs(S.wheel) < D.sectionLock) return;
+              step(S.wheel > 0 ? 1 : -1);
+              S.wheel = 0
+            }, {
+              passive: false
+            });
+            addEventListener('keydown', function(e) {
+              if (S.overlay.open) {
+                if (e.key === 'Escape') closeCase();
+                return
+              }
+              if (['ArrowDown', 'PageDown', ' '].includes(e.key)) {
+                e.preventDefault();
+                step(1)
+              }
+              if (['ArrowUp', 'PageUp'].includes(e.key)) {
+                e.preventDefault();
+                step(-1)
+              }
+            });
+            E.dev && E.dev.addEventListener('click', function() {
+              injectDev();
+              S.ui.dev = !S.ui.dev;
+              E.dev.setAttribute('aria-pressed', String(S.ui.dev));
+              syncUiState()
+            });
+            E.btn && E.btn.addEventListener('click', function() {
+              go(curr() === 's3' ? 's0' : curr() === 's2' ? 's3' : 's2')
+            });
+            E.menuItems.forEach(function(item) {
+              item.addEventListener('click', function() {
+                go(item.getAttribute('data-target'))
+              })
+            });
+            $$('[data-random-brand]').forEach(function(item) {
+              item.addEventListener('click', function() {
+                var brand = item.getAttribute('data-random-brand').toLowerCase();
+                casesReady.then(function() {
+                  var matches = D.cases.map(function(caseItem, index) {
+                    return caseItem && String(caseItem.brand || '').toLowerCase() === brand ? index : null
+                  }).filter(function(index) {
+                    return index != null
+                  });
+                  if (!matches.length) return;
+                  go('s2');
+                  openCase(matches[Math.floor(Math.random() * matches.length)])
+                })
+              })
+            });
+            E.cards.forEach(function(card) {
+              card.addEventListener('click', function() {
+                casesReady.then(function() {
+                  openCase(+card.getAttribute('data-case-index'))
+                })
+              })
+            });
+            $('.cases-more', E.grid) && $('.cases-more', E.grid).addEventListener('click', openMoreCases);
+            E.close && E.close.addEventListener('click', closeCase);
+            E.stage && E.stage.addEventListener('click', function(e) {
+              var disclosureBtn = e.target.closest && e.target.closest('.case-disclosure__toggle');
+              if (disclosureBtn) {
+                var disclosure = disclosureBtn.closest('.case-disclosure'),
+                  open = !disclosure.classList.contains('is-open');
+                setDisclosureOpen(disclosure, open, true);
+                if (open) scheduleCaseFitAfterMotion();
+                else scheduleCaseFit();
+                return
+              }
+              if (e.target === E.stage || e.target.classList.contains('case-stage__blur')) closeCase()
+            });
+            E.stage && E.stage.addEventListener('mouseover', function(e) {
+              var disclosure = e.target.closest && e.target.closest('.case-disclosure');
+              if (!disclosure || disclosure.classList.contains('is-open') || disclosure.classList.contains('is-user-closed')) return;
+              setDisclosureOpen(disclosure, true, false);
+              scheduleCaseFitAfterMotion()
+            });
+            E.stage && E.stage.addEventListener('pointerenter', function(e) {
+              var media = e.target.closest && e.target.closest('.case-media');
+              if (!media || matchMedia('(pointer: coarse)').matches) return;
+              moveMediaCursor(e);
+              ensureMediaCursor().classList.add('is-visible')
+            }, true);
+            E.stage && E.stage.addEventListener('pointermove', function(e) {
+              if (!E.mediaCursor || !E.mediaCursor.classList.contains('is-visible')) return;
+              if (!(e.target.closest && e.target.closest('.case-media'))) {
+                E.mediaCursor.classList.remove('is-visible');
+                return
+              }
+              moveMediaCursor(e)
+            });
+            E.stage && E.stage.addEventListener('pointerleave', function(e) {
+              if (e.target.closest && e.target.closest('.case-media') && E.mediaCursor) E.mediaCursor.classList.remove(
+                'is-visible')
+            }, true);
+            var touchStartY = 0, touchStartTime = 0;
+            addEventListener('touchstart', function(e) {
+              if (S.overlay.open) return;
+              touchStartY = e.touches[0].clientY;
+              touchStartTime = Date.now()
+            }, { passive: true });
+            addEventListener('touchend', function(e) {
+              if (S.overlay.open) return;
+              var deltaY = touchStartY - e.changedTouches[0].clientY,
+                deltaTime = Date.now() - touchStartTime;
+              if (Math.abs(deltaY) > 50 && deltaTime < 500) step(deltaY > 0 ? 1 : -1)
+            }, { passive: true });
+            walk(E.w);
+            walk(E.stage);
+            updateContactClocks();
+            T.contactClock = setInterval(updateContactClocks, 1000);
             updateMaster();
-            updateDevGrid();
-            if (S.overlay.open && S.overlay.caseIndex != null) renderCase(S.overlay.caseIndex)
-          });
-          addEventListener('wheel', function(e) {
-            if (S.overlay.open) return;
-            var dir = Math.sign ? Math.sign(e.deltaY) : (e.deltaY > 0 ? 1 : e.deltaY < 0 ? -1 : 0);
-            if (S.busy || !dir) return;
-            e.preventDefault();
-            S.wheel += e.deltaY;
-            if (Math.abs(S.wheel) < D.sectionLock) return;
-            step(S.wheel > 0 ? 1 : -1);
-            S.wheel = 0
-          }, {
-            passive: false
-          });
-          addEventListener('keydown', function(e) {
-            if (S.overlay.open) {
-              if (e.key === 'Escape') closeCase();
-              return
-            }
-            if (['ArrowDown', 'PageDown', ' '].includes(e.key)) {
-              e.preventDefault();
-              step(1)
-            }
-            if (['ArrowUp', 'PageUp'].includes(e.key)) {
-              e.preventDefault();
-              step(-1)
-            }
-          });
-          E.dev && E.dev.addEventListener('click', function() {
-            injectDev();
-            S.ui.dev = !S.ui.dev;
-            E.dev.setAttribute('aria-pressed', String(S.ui.dev));
-            syncUiState()
-          });
-          E.btn && E.btn.addEventListener('click', function() {
-            go(curr() === 's3' ? 's0' : curr() === 's2' ? 's3' : 's2')
-          });
-          E.menuItems.forEach(function(item) {
-            item.addEventListener('click', function() {
-              go(item.getAttribute('data-target'))
-            })
-          });
-          $$('[data-random-brand]').forEach(function(item) {
-            item.addEventListener('click', function() {
-              var brand = item.getAttribute('data-random-brand').toLowerCase();
-              casesReady.then(function() {
-                var matches = D.cases.map(function(caseItem, index) {
-                  return caseItem && String(caseItem.brand || '').toLowerCase() === brand ? index : null
-                }).filter(function(index) {
-                  return index != null
-                });
-                if (!matches.length) return;
-                go('s2');
-                openCase(matches[Math.floor(Math.random() * matches.length)])
-              })
-            })
-          });
-          E.cards.forEach(function(card) {
-            card.addEventListener('click', function() {
-              casesReady.then(function() {
-                openCase(+card.getAttribute('data-case-index'))
-              })
-            })
-          });
-          $('.cases-more', E.grid) && $('.cases-more', E.grid).addEventListener('click', openMoreCases);
-          E.close && E.close.addEventListener('click', closeCase);
-          E.stage && E.stage.addEventListener('click', function(e) {
-            var disclosureBtn = e.target.closest && e.target.closest('.case-disclosure__toggle');
-            if (disclosureBtn) {
-              var disclosure = disclosureBtn.closest('.case-disclosure'),
-                open = !disclosure.classList.contains('is-open');
-              setDisclosureOpen(disclosure, open, true);
-              if (open) scheduleCaseFitAfterMotion();
-              else scheduleCaseFit();
-              return
-            }
-            if (e.target === E.stage || e.target.classList.contains('case-stage__blur')) closeCase()
-          });
-          E.stage && E.stage.addEventListener('mouseover', function(e) {
-            var disclosure = e.target.closest && e.target.closest('.case-disclosure');
-            if (!disclosure || disclosure.classList.contains('is-open') || disclosure.classList.contains('is-user-closed')) return;
-            setDisclosureOpen(disclosure, true, false);
-            scheduleCaseFitAfterMotion()
-          });
-          E.stage && E.stage.addEventListener('pointerenter', function(e) {
-            var media = e.target.closest && e.target.closest('.case-media');
-            if (!media || matchMedia('(pointer: coarse)').matches) return;
-            moveMediaCursor(e);
-            ensureMediaCursor().classList.add('is-visible')
-          }, true);
-          E.stage && E.stage.addEventListener('pointermove', function(e) {
-            if (!E.mediaCursor || !E.mediaCursor.classList.contains('is-visible')) return;
-            if (!(e.target.closest && e.target.closest('.case-media'))) {
-              E.mediaCursor.classList.remove('is-visible');
-              return
-            }
-            moveMediaCursor(e)
-          });
-          E.stage && E.stage.addEventListener('pointerleave', function(e) {
-            if (e.target.closest && e.target.closest('.case-media') && E.mediaCursor) E.mediaCursor.classList.remove(
-              'is-visible')
-          }, true);
+            syncUiState();
+            go('s0', false);
+            whenFontsReady(scheduleHero)
+          }
 
-          // Touch/swipe support for mobile
-          var touchStartY = 0, touchStartTime = 0;
-          addEventListener('touchstart', function(e) {
-            if (S.overlay.open) return;
-            touchStartY = e.touches[0].clientY;
-            touchStartTime = Date.now();
-          }, { passive: true });
-          addEventListener('touchend', function(e) {
-            if (S.overlay.open) return;
-            var deltaY = touchStartY - e.changedTouches[0].clientY;
-            var deltaTime = Date.now() - touchStartTime;
-            if (Math.abs(deltaY) > 50 && deltaTime < 500) {
-              step(deltaY > 0 ? 1 : -1);
-            }
-          }, { passive: true });
-          walk(E.w);
-          walk(E.stage);
-          updateContactClocks();
-          T.contactClock = setInterval(updateContactClocks, 1000);
-          updateMaster();
-          syncUiState();
-          go('s0', false);
-          whenFontsReady(scheduleHero);
+          loadLocale().then(function(dict) {
+            applyLocale(dict);
+            init()
+          }).catch(function() {
+            init()
+          });
         });
 })();

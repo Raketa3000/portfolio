@@ -8,5 +8,49 @@
     "insight": "",
     "solution": "За один день мы разработали более 10 идей роликов, которые клиент позитивно принял и согласовал без правок. За 8 часов съёмочного дня продакшн отснял практически все концепции, после чего лучшие ролики были переданы SMM-команде бренда для публикации в TikTok."
   },
+  "media": [
+    {
+      "type": "tiktok",
+      "src": "https://www.tiktok.com/@letoile_official/video/7584859980080090388",
+      "id": "7584859980080090388",
+      "layout": "half"
+    },
+    {
+      "type": "tiktok",
+      "src": "https://www.tiktok.com/@letoile_official/video/7583712564077530389",
+      "id": "7583712564077530389",
+      "layout": "half"
+    },
+    {
+      "type": "tiktok",
+      "src": "https://www.tiktok.com/@letoile_official/video/7583322569726594325",
+      "id": "7583322569726594325",
+      "layout": "half"
+    },
+    {
+      "type": "tiktok",
+      "src": "https://www.tiktok.com/@letoile_official/video/7583000038662786324",
+      "id": "7583000038662786324",
+      "layout": "half"
+    },
+    {
+      "type": "tiktok",
+      "src": "https://www.tiktok.com/@letoile_official/video/7582650457563139348",
+      "id": "7582650457563139348",
+      "layout": "half"
+    },
+    {
+      "type": "tiktok",
+      "src": "https://www.tiktok.com/@letoile_official/video/7582272040195886344",
+      "id": "7582272040195886344",
+      "layout": "half"
+    },
+    {
+      "type": "tiktok",
+      "src": "https://www.tiktok.com/@letoile_official/video/7581422242370751762",
+      "id": "7581422242370751762",
+      "layout": "half"
+    }
+  ],
   "stats": []
 }

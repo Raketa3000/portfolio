@@ -11,5 +11,27 @@
     "solution": "",
     "result": "Кампания сработала на рост брендовых и поведенческих метрик: усилились интерес к бренду, вовлеченность и готовность посетить ресторан. Исследования Brand Lift и Sales Lift подтвердили позитивный эффект кампании на восприятие бренда и потребительское поведение."
   },
+  "media": [
+    {
+      "type": "image",
+      "src": "assets/cases/media/burger-king-titan-box.jpg",
+      "alt": "Бокс коллаборации Бургер Кинг и Атака титанов",
+      "fit": "contain"
+    },
+    {
+      "type": "image",
+      "src": "assets/cases/media/burger-king-titan-table.jpg",
+      "alt": "Бокс Атака титанов на столе с продуктами Бургер Кинг",
+      "fit": "contain",
+      "layout": "half"
+    },
+    {
+      "type": "image",
+      "src": "assets/cases/media/burger-king-titan-merch.jpg",
+      "alt": "Акриловые стенды Атака титанов и упаковка Бургер Кинг",
+      "fit": "contain",
+      "layout": "half"
+    }
+  ],
   "stats": []
 }
