@@ -2,6 +2,131 @@
   "locale": "en",
   "htmlLang": "en",
   "meta": {
-    "title": "Marketing & Creative Community"
+    "title": "Marketing & Creative Community",
+    "description": "A community of experts helping leading Russian and international brands create effective, high-impact digital communications.",
+    "keywords": "expert community, strategy, creative, digital, communication, brands, advertising"
+  },
+  "nav": {
+    "label": "Navigation",
+    "next": "Next",
+    "dev": "DEV grid",
+    "items": {
+      "s1": "services",
+      "s1-2": "clients",
+      "s2": "cases",
+      "s3": "contact"
+    }
+  },
+  "languages": {
+    "label": "Site language",
+    "options": {
+      "ru": "Russian",
+      "en": "English",
+      "es-la": "Latin American Spanish"
+    }
+  },
+  "hero": {
+    "first": "WE DON'T<br>MAKE ADS",
+    "secondLead": "WE CREATE",
+    "desire": "DESIRE",
+    "copy": "We are a community of experts helping<br>leading Russian and international brands<br>create effective, high-impact digital communications",
+    "words": ["TRY", "WATCH", "SEARCH", "BUY"]
+  },
+  "services": {
+    "label": "SERVICES",
+    "cards": [
+      {
+        "title": "STRATEGY",
+        "description": "Research and analysis, tactical decisions, communications, creative, integrated marketing and SMM strategies."
+      },
+      {
+        "title": "CREATIVE",
+        "description": "Big ideas, creative frameworks, viral video concepts and ideas for special projects."
+      },
+      {
+        "title": "TEAM",
+        "description": "We can recommend or assemble a project team for you, from designers to influencer managers."
+      },
+      {
+        "title": "DIGITAL 360°",
+        "description": "We develop full-scale digital campaigns, from research and strategy to creative concepts and implementation roadmaps."
+      }
+    ]
+  },
+  "clients": {
+    "label": "CLIENTS",
+    "items": {
+      "letual": "L'Etoile",
+      "beeline": "Beeline",
+      "burgerKing": "Burger King",
+      "yandex": "Yandex",
+      "unilever": "Unilever",
+      "huawei": "Huawei",
+      "avito": "Avito",
+      "zewa": "Zewa",
+      "kia": "Kia",
+      "volkswagen": "Volkswagen",
+      "barilla": "Barilla",
+      "mondelez": "Mondelēz",
+      "sber": "Sber",
+      "lufthansa": "Lufthansa",
+      "gerber": "Gerber",
+      "nivea": "NIVEA",
+      "pepsico": "PepsiCo",
+      "mars": "Mars",
+      "alfaBank": "Alfa-Bank",
+      "riot": "Riot Games"
+    }
+  },
+  "works": {
+    "label": "CASES",
+    "more": "More cases"
+  },
+  "contact": {
+    "first": "WHILE<br>YOU SLEEP<br>WE WORK",
+    "secondPrefix": "LET'S<br>MAKE",
+    "secondSuffix": "TOGETHER",
+    "words": ["STRATEGY", "BIG IDEA", "PROJECT", "CAMPAIGN"],
+    "profiles": {
+      "leftAlt": "Dmitry Bannikov",
+      "rightAlt": "Gleb Yankovsky",
+      "leftRole": "Strategy Director",
+      "leftName": "DMITRY<br>BANNIKOV",
+      "rightRole": "Creative Director",
+      "rightName": "GLEB<br>YANKOVSKY"
+    },
+    "locations": {
+      "ba": "Buenos Aires",
+      "msk": "Moscow",
+      "working": "working",
+      "sleeping": "sleeping"
+    },
+    "briefs": {
+      "strategyLabel": "Strategy brief",
+      "creativeLabel": "Creative brief",
+      "send": "SEND",
+      "channel": "on Telegram"
+    }
+  },
+  "caseStage": {
+    "close": "Close case",
+    "moreAccess": "Password-protected access",
+    "moreTitle": "More cases",
+    "promptA": "SEND US<br>YOUR<br>BRIEF",
+    "promptB": "WE WILL<br>SEND YOU<br>THE PASSWORD",
+    "passwordLabel": "Enter password",
+    "passwordSubmit": "Open",
+    "passwordError": "You need a password to access private cases.",
+    "tiktokFallback": "Watch on TikTok",
+    "fieldTitles": {
+      "context": "Context",
+      "task": "Task",
+      "insight": "Insight",
+      "strategy": "Strategy",
+      "solution": "Solution",
+      "strategic_solution": "Strategic solution",
+      "result": "Result",
+      "awards": "Awards"
+    }
   }
 }

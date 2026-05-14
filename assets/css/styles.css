@@ -25,6 +25,8 @@
         --grid-padding-mobile: var(--grid-padding-desktop);
         --grid-padding: var(--grid-padding-desktop);
         --grid-max-width: 1440px;
+        --grid-shell-width: min(calc(100vw - 2*var(--grid-padding)), calc(var(--grid-max-width) - 2*var(--grid-padding)));
+        --grid-col-width: calc((var(--grid-shell-width) - (var(--grid-columns) - 1)*var(--grid-gap))/var(--grid-columns));
         --grid-anchor-start: 1/span 3;
         --grid-content-start: 7/span 6;
         --grid-card-left: 7/span 3;
@@ -217,6 +219,7 @@
 
       .section-grid,
       nav,
+      .utility-grid,
       .menu__inner,
       .case-stage__frame,
       .master-grid,
@@ -234,6 +237,7 @@
 
       .section-grid,
       nav,
+      .utility-grid,
       .menu__inner,
       .case-stage__frame,
       .master-grid,
@@ -505,7 +509,10 @@
         font-kerning: normal;
         text-transform: uppercase;
         color: var(--text);
-        text-shadow: var(--glow)
+        text-shadow: var(--glow);
+        white-space: nowrap;
+        word-break: keep-all;
+        overflow-wrap: normal
       }
 
       .services-label,
@@ -716,13 +723,18 @@
       }
 
       nav,
+      .utility-grid,
       .menu {
         position: fixed;
-        top: var(--nav-top);
         left: 50%;
         transform: translateX(-50%);
-        width: min(calc(100% - 2*var(--grid-padding)), calc(var(--grid-max-width) - 2*var(--grid-padding)));
+        width: var(--grid-shell-width);
         transition: var(--tr-fade)
+      }
+
+      nav,
+      .menu {
+        top: var(--nav-top)
       }
 
       nav {
@@ -731,12 +743,30 @@
         pointer-events: none
       }
 
+      .utility-grid {
+        z-index: 120;
+        display: grid;
+        grid-template-columns: repeat(var(--grid-columns), minmax(0, 1fr));
+        column-gap: var(--grid-gap);
+        height: var(--nav-height);
+        overflow: hidden;
+        pointer-events: none
+      }
+
+      .utility-grid--dev {
+        bottom: calc(var(--section-padding-bottom) + var(--nav-height) + 14px)
+      }
+
+      .utility-grid--lang {
+        top: var(--master-top)
+      }
+
       nav>* {
         pointer-events: auto
       }
 
       .nav-action {
-        grid-column: var(--grid-card-right);
+        grid-column: 11/span 1;
         justify-self: end;
         align-items: center;
         justify-content: flex-end;
@@ -745,6 +775,114 @@
         text-align: right;
         font: var(--font-ui);
         white-space: nowrap
+      }
+
+      .lang-switcher {
+        grid-column: var(--grid-columns)/span 1;
+        grid-row: 1;
+        justify-self: start;
+        align-self: start;
+        display: inline-flex;
+        flex-flow: row nowrap;
+        gap: 6px;
+        justify-content: flex-start;
+        align-items: flex-start;
+        width: 100%;
+        max-width: 100%;
+        height: auto;
+        max-height: 100%;
+        min-width: 0;
+        overflow: hidden;
+        pointer-events: auto;
+        font: var(--font-ui);
+        text-transform: uppercase
+      }
+
+      .lang-switcher__item {
+        position: relative;
+        display: inline-block;
+        opacity: 1;
+        padding: 0;
+        max-width: 100%;
+        overflow: hidden;
+        color: inherit;
+        font: inherit;
+        line-height: inherit;
+        letter-spacing: inherit;
+        text-transform: inherit;
+        flex: 0 0 auto;
+        transition: opacity .2s
+      }
+
+      .lang-switcher__item.is-active,
+      .lang-switcher__item:hover,
+      .lang-switcher__item:focus-visible {
+        opacity: 1
+      }
+
+      .lang-switcher__item:hover,
+      .lang-switcher__item:focus-visible {
+        opacity: .7
+      }
+
+      .lang-switcher__item.is-active {
+        display: none
+      }
+
+      .menu__item,
+      .lang-switcher__item,
+      .client-item__name,
+      .case-password__submit,
+      .case-media__fallback-link,
+      .contact-info__link-word,
+      .case-disclosure__title,
+      .case-title__line {
+        --underline-offset: .12em;
+        position: relative;
+        text-decoration: none
+      }
+
+      .menu__item:after,
+      .lang-switcher__item:after,
+      .client-item__name:after,
+      .case-password__submit:after,
+      .case-media__fallback-link:after,
+      .contact-info__link-word:after,
+      .case-disclosure__title:after,
+      .case-title__line:after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: var(--underline-offset);
+        height: 1px;
+        background: currentColor;
+        transform: scaleX(0);
+        transform-origin: right center;
+        transition: transform .34s var(--ease-soft);
+        pointer-events: none
+      }
+
+      .menu__item:hover:after,
+      .menu__item:focus-visible:after,
+      .lang-switcher__item:hover:after,
+      .lang-switcher__item:focus-visible:after,
+      .client-item--link:hover .client-item__name:after,
+      .client-item--link:focus-visible .client-item__name:after,
+      .case-password__submit:hover:after,
+      .case-password__submit:focus-visible:after,
+      .case-media__fallback-link:hover:after,
+      .case-media__fallback-link:focus-visible:after,
+      .contact-info:hover .contact-info__link-word:after,
+      .contact-info:focus-visible .contact-info__link-word:after,
+      .case-disclosure__toggle:hover .case-disclosure__title:after,
+      .case-disclosure__toggle:focus-visible .case-disclosure__title:after,
+      .case-card:hover .case-title__line:after,
+      .case-card:focus-visible .case-title__line:after,
+      .cases-more:hover .case-title__line:after,
+      .cases-more:focus-visible .case-title__line:after {
+        transform-origin: left center;
+        transform: scaleX(1)
       }
 
       .nav-action.is-icon {
@@ -762,11 +900,18 @@
       }
 
       #dev-toggle {
-        position: fixed;
-        right: var(--grid-padding);
-        bottom: var(--section-padding-bottom);
-        z-index: 120;
-        font: var(--font-ui)
+        grid-column: var(--grid-columns)/span 1;
+        grid-row: 1;
+        justify-self: start;
+        align-self: start;
+        width: 100%;
+        max-width: 100%;
+        height: 100%;
+        max-height: 100%;
+        overflow: hidden;
+        pointer-events: auto;
+        font: var(--font-ui);
+        line-height: 1
       }
 
       .menu {
@@ -1040,18 +1185,13 @@
         white-space: nowrap
       }
 
-      .client-item--link {
-        cursor: pointer;
-        text-decoration-line: underline;
-        text-decoration-color: transparent;
-        text-decoration-thickness: 1px;
-        text-underline-offset: .12em;
-        transition: text-decoration-color .18s ease
+      .client-item__name {
+        display: inline-block
       }
 
-      .client-item--link:hover,
-      .client-item--link:focus-visible {
-        text-decoration-color: currentColor
+      .client-item--link {
+        cursor: pointer;
+        text-decoration: none
       }
 
       .client-item sup {
@@ -1167,8 +1307,25 @@
       }
 
       .case-title__line {
+        display: table;
+        width: max-content;
+        max-width: 100%;
         min-height: 1.1em;
         white-space: nowrap
+      }
+
+      .case-card:hover .case-title__line:nth-child(2):after,
+      .case-card:focus-visible .case-title__line:nth-child(2):after,
+      .cases-more:hover .case-title__line:nth-child(2):after,
+      .cases-more:focus-visible .case-title__line:nth-child(2):after {
+        transition-delay: .34s
+      }
+
+      .case-card:hover .case-title__line:nth-child(3):after,
+      .case-card:focus-visible .case-title__line:nth-child(3):after,
+      .cases-more:hover .case-title__line:nth-child(3):after,
+      .cases-more:focus-visible .case-title__line:nth-child(3):after {
+        transition-delay: .68s
       }
 
       .case-password-promo {
@@ -1274,11 +1431,6 @@
         cursor: pointer
       }
 
-      .case-password__submit:hover {
-        text-decoration: underline;
-        text-underline-offset: .16em
-      }
-
       .case-password__message {
         min-height: 1.2em;
         margin-top: var(--space-block);
@@ -1351,16 +1503,7 @@
       }
 
       .contact-info__link-word {
-        text-decoration-line: underline;
-        text-decoration-color: transparent;
-        text-decoration-thickness: 1px;
-        text-underline-offset: .12em;
-        transition: text-decoration-color .18s ease
-      }
-
-      .contact-info:hover .contact-info__link-word,
-      .contact-info:focus-visible .contact-info__link-word {
-        text-decoration-color: currentColor
+        text-decoration: none
       }
 
       .contact-clock__colon {
@@ -1712,6 +1855,12 @@
       .case-disclosure__title {
         display: block;
         min-width: 0
+      }
+
+      .case-disclosure__title {
+        display: inline-block;
+        width: max-content;
+        max-width: 100%
       }
 
       .case-disclosure__mark {
@@ -2066,7 +2215,6 @@
         }
 
         .nav-action { grid-column: 5/span 2 }
-
         .case-card .case-title,
         .cases-more .case-title {
           max-width: 100%;
@@ -2096,6 +2244,11 @@
 
         .section-grid, nav, .menu__inner, .case-stage__frame, .master-grid, .dev-cols {
           grid-template-columns: repeat(var(--grid-columns), minmax(0, 1fr));
+        }
+
+        .menu__item,
+        .lang-switcher__item {
+          font-size: 10px
         }
 
         .grid-anchor-start, .services-label {
@@ -2177,7 +2330,6 @@
         }
 
         .nav-action { grid-column: 3/span 2 }
-
         .team-photo-placeholder {
           max-height: 200px;
           width: auto;

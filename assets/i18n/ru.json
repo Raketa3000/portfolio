@@ -11,10 +11,18 @@
     "next": "Далее",
     "dev": "DEV-сетка",
     "items": {
-      "s1": "services",
-      "s1-2": "clients",
-      "s2": "works",
-      "s3": "contact"
+      "s1": "услуги",
+      "s1-2": "клиенты",
+      "s2": "кейсы",
+      "s3": "контакты"
+    }
+  },
+  "languages": {
+    "label": "Язык сайта",
+    "options": {
+      "ru": "Русский",
+      "en": "English",
+      "es-la": "Español latinoamericano"
     }
   },
   "hero": {
@@ -25,7 +33,7 @@
     "words": ["ПРОБОВАТЬ", "СМОТРЕТЬ", "ИСКАТЬ", "ПОКУПАТЬ"]
   },
   "services": {
-    "label": "SERVICES",
+    "label": "УСЛУГИ",
     "cards": [
       {
         "title": "СТРАТЕГИЯ",
@@ -46,10 +54,32 @@
     ]
   },
   "clients": {
-    "label": "CLIENTS"
+    "label": "КЛИЕНТЫ",
+    "items": {
+      "letual": "ЛЭТУАЛЬ",
+      "beeline": "билайн",
+      "burgerKing": "Бургер Кинг",
+      "yandex": "Яндекс",
+      "unilever": "Unilever",
+      "huawei": "Huawei",
+      "avito": "Авито",
+      "zewa": "Zewa",
+      "kia": "Kia",
+      "volkswagen": "Volkswagen",
+      "barilla": "Barilla",
+      "mondelez": "Mondelēz",
+      "sber": "Сбер",
+      "lufthansa": "Lufthansa",
+      "gerber": "Gerber",
+      "nivea": "NIVEA",
+      "pepsico": "PepsiCo",
+      "mars": "Mars",
+      "alfaBank": "Альфа-Банк",
+      "riot": "Riot Games"
+    }
   },
   "works": {
-    "label": "WORKS",
+    "label": "КЕЙСЫ",
     "more": "Еще больше кейсов"
   },
   "contact": {
@@ -60,9 +90,9 @@
     "profiles": {
       "leftAlt": "Дмитрий Банников",
       "rightAlt": "Глеб Янковский",
-      "leftRole": "Strategy director",
+      "leftRole": "Стратегический директор",
       "leftName": "ДМИТРИЙ<br>БАННИКОВ",
-      "rightRole": "Creative director",
+      "rightRole": "Креативный директор",
       "rightName": "ГЛЕБ<br>ЯНКОВСКИЙ"
     },
     "locations": {
@@ -87,6 +117,7 @@
     "passwordLabel": "Введите пароль",
     "passwordSubmit": "Открыть",
     "passwordError": "Пароль нужен для доступа к закрытым кейсам.",
+    "tiktokFallback": "Смотреть TikTok",
     "fieldTitles": {
       "context": "Контекст",
       "task": "Задача",

@@ -21,8 +21,17 @@
 
   <body>
     <nav aria-label="Навигация"><button class="nav-action is-icon" id="btn-cases" type="button"
-        aria-label="Далее"></button><button id="dev-toggle" type="button" aria-pressed="false"
-        aria-label="DEV-сетка">DEV</button></nav>
+        aria-label="Далее"></button></nav>
+    <div class="utility-grid utility-grid--dev">
+      <button id="dev-toggle" type="button" aria-pressed="false" aria-label="DEV-сетка">DEV</button>
+    </div>
+    <div class="utility-grid utility-grid--lang">
+      <div class="lang-switcher" id="lang-switcher" aria-label="Язык сайта">
+        <button class="lang-switcher__item" type="button" data-lang="ru" lang="ru">RU</button>
+        <button class="lang-switcher__item" type="button" data-lang="en" lang="en">EN</button>
+        <button class="lang-switcher__item" type="button" data-lang="es-la" lang="es-419">ES</button>
+      </div>
+    </div>
     <div class="menu" id="menu-overlay" aria-label="Разделы">
       <div class="menu__inner"><button class="menu__item" data-target="s1" type="button">services</button><button
           class="menu__item" data-target="s1-2" type="button">clients</button><button class="menu__item"
@@ -84,26 +93,26 @@
           <div class="services-grid section-grid">
             <div class="services-label heading grid-anchor-start fu">CLIENTS</div>
             <div class="clients-grid fu">
-              <button class="client-item client-item--link" type="button" data-random-brand="лэтуаль">ЛЭТУАЛЬ<sup>(1)</sup></button>
-              <button class="client-item client-item--link" type="button" data-random-brand="билайн">Билайн<sup>(3)</sup></button>
-              <button class="client-item client-item--link" type="button" data-random-brand="бургер кинг">Бургер Кинг<sup>(4)</sup></button>
-              <span class="client-item">Яндекс<sup>(1)</sup></span>
-              <span class="client-item">Юнилевер<sup>(8)</sup></span>
-              <span class="client-item">Huawei<sup>(2)</sup></span>
-              <span class="client-item">Авито<sup>(5)</sup></span>
-              <span class="client-item">Zewa<sup>(1)</sup></span>
-              <span class="client-item">KIA<sup>(1)</sup></span>
-              <span class="client-item">Volkswagen<sup>(3)</sup></span>
-              <span class="client-item">Barilla<sup>(3)</sup></span>
-              <span class="client-item">Mondelez<sup>(1)</sup></span>
-              <span class="client-item">Сбер<sup>(1)</sup></span>
-              <span class="client-item">Lufthansa<sup>(1)</sup></span>
-              <span class="client-item">Gerber<sup>(2)</sup></span>
-              <span class="client-item">Nivea<sup>(1)</sup></span>
-              <span class="client-item">PepsiCo<sup>(1)</sup></span>
-              <span class="client-item">Mars<sup>(1)</sup></span>
-              <span class="client-item">Альфа-Банк<sup>(1)</sup></span>
-              <span class="client-item">Riot<sup>(1)</sup></span>
+              <button class="client-item client-item--link" type="button" data-client-id="letual" data-random-brand="лэтуаль">ЛЭТУАЛЬ<sup>(1)</sup></button>
+              <button class="client-item client-item--link" type="button" data-client-id="beeline" data-random-brand="билайн">Билайн<sup>(3)</sup></button>
+              <button class="client-item client-item--link" type="button" data-client-id="burgerKing" data-random-brand="бургер кинг">Бургер Кинг<sup>(4)</sup></button>
+              <span class="client-item" data-client-id="yandex">Яндекс<sup>(1)</sup></span>
+              <span class="client-item" data-client-id="unilever">Юнилевер<sup>(8)</sup></span>
+              <span class="client-item" data-client-id="huawei">Huawei<sup>(2)</sup></span>
+              <span class="client-item" data-client-id="avito">Авито<sup>(5)</sup></span>
+              <span class="client-item" data-client-id="zewa">Zewa<sup>(1)</sup></span>
+              <span class="client-item" data-client-id="kia">KIA<sup>(1)</sup></span>
+              <span class="client-item" data-client-id="volkswagen">Volkswagen<sup>(3)</sup></span>
+              <span class="client-item" data-client-id="barilla">Barilla<sup>(3)</sup></span>
+              <span class="client-item" data-client-id="mondelez">Mondelez<sup>(1)</sup></span>
+              <span class="client-item" data-client-id="sber">Сбер<sup>(1)</sup></span>
+              <span class="client-item" data-client-id="lufthansa">Lufthansa<sup>(1)</sup></span>
+              <span class="client-item" data-client-id="gerber">Gerber<sup>(2)</sup></span>
+              <span class="client-item" data-client-id="nivea">Nivea<sup>(1)</sup></span>
+              <span class="client-item" data-client-id="pepsico">PepsiCo<sup>(1)</sup></span>
+              <span class="client-item" data-client-id="mars">Mars<sup>(1)</sup></span>
+              <span class="client-item" data-client-id="alfaBank">Альфа-Банк<sup>(1)</sup></span>
+              <span class="client-item" data-client-id="riot">Riot<sup>(1)</sup></span>
             </div>
           </div>
         </div>

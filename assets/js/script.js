@@ -16,6 +16,8 @@
               menuIn: $('.menu__inner'),
               menuItems: $$('.menu__item'),
               menuMask: $('.menu__mask'),
+              lang: $('#lang-switcher'),
+              langButtons: $$('.lang-switcher__item'),
               btn: $('#btn-cases'),
               dev: $('#dev-toggle'),
               heroA: $('#h-a'),
@@ -96,7 +98,11 @@
               contactWords: ['СТРАТЕГИЮ', 'КРЕАТИВ', 'ПРОЕКТ', 'КАМПАНИЮ'],
               contactIntroDelayMs: 1600,
               contactLoopStartDelayMs: 2400,
-              glyphs: 'АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯABCDEFGHIJKLMNOPQRSTUVWXYZ',
+              glyphsByLocale: {
+                ru: 'АБВГДЕЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ',
+                en: 'ABCDEFGHIJKLMNOPQRSTUVWXYZ',
+                'es-la': 'ABCDEFGHIJKLMNÑOPQRSTUVWXYZ'
+              },
               heroIntroDelayMs: 1600,
               heroLoopStartDelayMs: 2400,
               scrambleMs: 1100,
@@ -164,6 +170,9 @@
             screenCfg = function(id) {
               return SITE_DATA.screens[id] || {}
             },
+            scrambleGlyphs = function() {
+              return D.glyphsByLocale[S.locale] || D.glyphsByLocale.en
+            },
             toRawUrl = function(v) {
               return 'assets/cases/' + v + '.json?v=' + encodeURIComponent(D.caseDataVersion)
             };
@@ -182,9 +191,11 @@
           function localeFromRequest() {
             var fromUrl = new URLSearchParams(location.search).get('lang'),
               requested = String(fromUrl || '').toLowerCase(),
+              stored = String(localStorage.getItem('site-lang') || '').toLowerCase(),
               languages = Array.prototype.slice.call(navigator.languages || [navigator.language || '']),
               detected;
             if (D.supportedLocales.indexOf(requested) > -1) return requested;
+            if (D.supportedLocales.indexOf(stored) > -1) return stored;
             detected = languages.map(function(lang) {
               lang = String(lang || '').toLowerCase();
               if (lang === 'es-la' || lang === 'es-419' || lang.indexOf('es-') === 0 || lang === 'es') return 'es-la';
@@ -204,8 +215,8 @@
             })
           }
 
-          function loadLocale() {
-            var locale = localeFromRequest();
+          function loadLocale(localeOverride) {
+            var locale = localeOverride || localeFromRequest();
             return fetchLocale(D.defaultLocale).then(function(base) {
               if (locale === D.defaultLocale) return base;
               return fetchLocale(locale).then(function(extra) {
@@ -233,6 +244,7 @@
           function applyLocale(dict) {
             var meta = dict.meta || {},
               nav = dict.nav || {},
+              languages = dict.languages || {},
               hero = dict.hero || {},
               services = dict.services || {},
               clients = dict.clients || {},
@@ -248,6 +260,13 @@
             if (E.nav && nav.label) E.nav.setAttribute('aria-label', nav.label);
             if (E.btn && nav.next) E.btn.setAttribute('aria-label', nav.next);
             if (E.dev && nav.dev) E.dev.setAttribute('aria-label', nav.dev);
+            if (E.lang && languages.label) E.lang.setAttribute('aria-label', languages.label);
+            E.langButtons.forEach(function(button) {
+              var lang = button.getAttribute('data-lang');
+              button.classList.toggle('is-active', lang === S.locale);
+              button.setAttribute('aria-pressed', String(lang === S.locale));
+              if (languages.options && languages.options[lang]) button.setAttribute('aria-label', languages.options[lang])
+            });
             Object.keys(nav.items || {}).forEach(function(id) {
               setText('.menu__item[data-target="' + id + '"]', nav.items[id])
             });
@@ -265,6 +284,9 @@
               setHtml('.card-desc', data.description, card)
             });
             setText('#s1-2 .services-label', clients.label);
+            Object.keys(clients.items || {}).forEach(function(id) {
+              setClientLabel(id, clients.items[id])
+            });
             setText('#s2 .services-label', works.label);
             setHtml('#contact-a', contact.first);
             if ($('#contact-b')) $('#contact-b').innerHTML = (contact.secondPrefix || '') + '<br><span id="contact-loop"></span><br>' +
@@ -293,9 +315,74 @@
             SITE_DATA.previewsMoreLabel = works.more || SITE_DATA.previewsMoreLabel
           }
 
+          function resetNeonReady() {
+            [E.heroA, E.heroB, $('#contact-a'), $('#contact-b')].concat($$('.services-label')).forEach(function(el) {
+              if (el) el.removeAttribute('data-neon-ready')
+            })
+          }
+
+          function updateBrowserLocaleParam(locale) {
+            var params = new URLSearchParams(location.search),
+              next;
+            params.set('lang', locale);
+            next = location.pathname + '?' + params.toString() + location.hash;
+            history.replaceState(null, document.title, next)
+          }
+
+          function restartCurrentScreenAnimations() {
+            var section = curr(),
+              current = $('#' + section);
+            stopHeroMotion(true);
+            stopContactMotion(true);
+            if (current) {
+              $$('.fu', current).forEach(function(el) {
+                el.classList.remove('on')
+              });
+              void current.offsetWidth;
+              delete S.revealed[section];
+              reveal(section)
+            }
+            if (section === 's0') scheduleHero();
+            if (section === 's3') startContactLoop()
+          }
+
+          function switchLocale(locale) {
+            if (D.supportedLocales.indexOf(locale) < 0 || locale === S.locale) return;
+            localStorage.setItem('site-lang', locale);
+            loadLocale(locale).then(function(dict) {
+              applyLocale(dict);
+              resetNeonReady();
+              setupNeonLetters();
+              updateContactClocks();
+              setMenu(false);
+              updateMaster();
+              updateBrowserLocaleParam(S.locale);
+              if ($('.cases-more .case-title__line', E.grid)) {
+                html($('.cases-more .case-title__line', E.grid), fmt(SITE_DATA.previewsMoreLabel || 'Еще больше кейсов'))
+              }
+              restartCurrentScreenAnimations();
+              if (S.overlay.open && S.overlay.caseIndex != null) renderCase(S.overlay.caseIndex)
+            })
+          }
+
           function setAttr(selector, attr, value) {
             var el = $(selector);
             if (el && value != null) el.setAttribute(attr, value)
+          }
+
+          function setClientLabel(id, value) {
+            var el = $('.client-item[data-client-id="' + id + '"]'),
+              sup,
+              name;
+            if (!el || value == null) return;
+            sup = $('sup', el);
+            Array.from(el.childNodes).forEach(function(node) {
+              if (node !== sup) node.remove()
+            });
+            name = document.createElement('span');
+            name.className = 'client-item__name';
+            name.textContent = value;
+            el.insertBefore(name, sup || null)
           }
 
           function whenFontsReady(fn) {
@@ -466,6 +553,7 @@
             if (!el) return;
             cancelFrame(key);
             var chars = String(target).split(''),
+              glyphs = scrambleGlyphs(),
               pool = [],
               shown = {},
               start = performance.now();
@@ -484,8 +572,7 @@
                 revealCount = Math.floor(p * pool.length);
               for (var k = 0; k < revealCount; k++) shown[pool[k]] = 1;
               txt(el, chars.map(function(ch, idx) {
-                return ch === ' ' ? ' ' : shown[idx] ? target[idx] : D.glyphs[Math.floor(Math.random() * D
-                  .glyphs.length)]
+                return ch === ' ' ? ' ' : shown[idx] ? target[idx] : glyphs[Math.floor(Math.random() * glyphs.length)]
               }).join(''));
               if (p < 1) {
                 T[key] = requestAnimationFrame(frame)
@@ -1123,7 +1210,8 @@
               return '<figure class="' + cls + '" data-fit="' + fit + '" data-layout="' + layout + '" data-aspect="' +
                 aspect + '"><iframe class="case-media__tiktok-player" src="' + player +
                 '" title="TikTok video" allow="fullscreen" loading="lazy" referrerpolicy="strict-origin-when-cross-origin"></iframe><a class="case-media__fallback-link" target="_blank" rel="noopener noreferrer" href="' +
-                url + '">Смотреть TikTok</a></figure>'
+                url + '">' + fmt((S.i18n && S.i18n.caseStage && S.i18n.caseStage.tiktokFallback) ||
+                'Смотреть TikTok') + '</a></figure>'
             }
             if (media.html) {
               return '<figure class="' + cls + '" data-fit="' + fit + '" data-layout="' + layout + '" data-aspect="' +
@@ -1193,7 +1281,7 @@
               hasMedia = item.media && item.media.length;
             S.overlay.openOrder = 0;
             html(E.cat, fmt(item.cat || ''));
-            html(E.brand, fmt((item.brand || '').replace('Burger King', 'Бургер Кинг')));
+            html(E.brand, fmt(item.brand || ''));
             html(E.title, fmt(item.title || ''));
             E.bodyPane.innerHTML = '';
             if (hasMedia) E.bodyPane.appendChild(renderMedia(item.media));
@@ -1393,6 +1481,11 @@
               S.ui.dev = !S.ui.dev;
               E.dev.setAttribute('aria-pressed', String(S.ui.dev));
               syncUiState()
+            });
+            E.langButtons.forEach(function(button) {
+              button.addEventListener('click', function() {
+                switchLocale(button.getAttribute('data-lang'))
+              })
             });
             E.btn && E.btn.addEventListener('click', function() {
               go(curr() === 's3' ? 's0' : curr() === 's2' ? 's3' : 's2')

@@ -2,6 +2,131 @@
   "locale": "es-la",
   "htmlLang": "es-419",
   "meta": {
-    "title": "Marketing & Creative Community"
+    "title": "Marketing & Creative Community",
+    "description": "Una comunidad de expertos que ayuda a grandes marcas rusas e internacionales a crear comunicación digital efectiva y de alto impacto.",
+    "keywords": "comunidad de expertos, estrategia, creatividad, digital, comunicación, marcas, publicidad"
+  },
+  "nav": {
+    "label": "Navegación",
+    "next": "Siguiente",
+    "dev": "Grilla DEV",
+    "items": {
+      "s1": "servicios",
+      "s1-2": "clientes",
+      "s2": "casos",
+      "s3": "contacto"
+    }
+  },
+  "languages": {
+    "label": "Idioma del sitio",
+    "options": {
+      "ru": "Ruso",
+      "en": "Inglés",
+      "es-la": "Español latinoamericano"
+    }
+  },
+  "hero": {
+    "first": "NO HACEMOS<br>PUBLICIDAD",
+    "secondLead": "CREAMOS",
+    "desire": "DESEO",
+    "copy": "Somos una comunidad de expertos que ayuda<br>a grandes marcas rusas e internacionales<br>a crear comunicación digital efectiva y de alto impacto",
+    "words": ["PROBAR", "VER", "BUSCAR", "COMPRAR"]
+  },
+  "services": {
+    "label": "SERVICIOS",
+    "cards": [
+      {
+        "title": "ESTRATEGIA",
+        "description": "Investigación y análisis, decisiones tácticas, estrategias de comunicación, creativas, de marketing integrado y de SMM."
+      },
+      {
+        "title": "CREATIVIDAD",
+        "description": "Big ideas, lineamientos creativos, conceptos para videos virales e ideas para proyectos especiales."
+      },
+      {
+        "title": "EQUIPO LOCAL",
+        "description": "Armamos un equipo local de expertos para tu proyecto: desde project managers y diseñadores hasta un equipo completo de producción audiovisual."
+      },
+      {
+        "title": "DIGITAL 360°",
+        "description": "Desarrollamos campañas digitales 360°, desde investigación y estrategia hasta conceptos creativos y plan de implementación."
+      }
+    ]
+  },
+  "clients": {
+    "label": "CLIENTES",
+    "items": {
+      "letual": "L'Etoile",
+      "beeline": "Beeline",
+      "burgerKing": "Burger King",
+      "yandex": "Yandex",
+      "unilever": "Unilever",
+      "huawei": "Huawei",
+      "avito": "Avito",
+      "zewa": "Zewa",
+      "kia": "Kia",
+      "volkswagen": "Volkswagen",
+      "barilla": "Barilla",
+      "mondelez": "Mondelēz",
+      "sber": "Sber",
+      "lufthansa": "Lufthansa",
+      "gerber": "Gerber",
+      "nivea": "NIVEA",
+      "pepsico": "PepsiCo",
+      "mars": "Mars",
+      "alfaBank": "Alfa-Bank",
+      "riot": "Riot Games"
+    }
+  },
+  "works": {
+    "label": "CASOS",
+    "more": "Más casos"
+  },
+  "contact": {
+    "first": "MIENTRAS<br>DUERMES<br>TRABAJAMOS",
+    "secondPrefix": "HAGAMOS",
+    "secondSuffix": "JUNTOS",
+    "words": ["ESTRATEGIA", "IDEA", "PROYECTO", "CAMPAÑA"],
+    "profiles": {
+      "leftAlt": "Dmitry Bannikov",
+      "rightAlt": "Gleb Yankovsky",
+      "leftRole": "Director de estrategia",
+      "leftName": "DMITRY<br>BANNIKOV",
+      "rightRole": "Director creativo",
+      "rightName": "GLEB<br>YANKOVSKY"
+    },
+    "locations": {
+      "ba": "Buenos Aires",
+      "msk": "Moscú",
+      "working": "trabajando",
+      "sleeping": "durmiendo"
+    },
+    "briefs": {
+      "strategyLabel": "Brief estratégico",
+      "creativeLabel": "Brief creativo",
+      "send": "MANDAR",
+      "channel": "por Telegram"
+    }
+  },
+  "caseStage": {
+    "close": "Cerrar caso",
+    "moreAccess": "Acceso protegido con contraseña",
+    "moreTitle": "Más casos",
+    "promptA": "ENVÍANOS<br>TU<br>BRIEF",
+    "promptB": "TE MANDAREMOS<br>LA<br>CONTRASEÑA",
+    "passwordLabel": "Ingresa la contraseña",
+    "passwordSubmit": "Abrir",
+    "passwordError": "Necesitas una contraseña para acceder a los casos privados.",
+    "tiktokFallback": "Ver en TikTok",
+    "fieldTitles": {
+      "context": "Contexto",
+      "task": "Objetivo",
+      "insight": "Insight",
+      "strategy": "Estrategia",
+      "solution": "Solución",
+      "strategic_solution": "Solución estratégica",
+      "result": "Resultado",
+      "awards": "Premios"
+    }
   }
 }
