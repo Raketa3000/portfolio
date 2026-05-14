@@ -198,12 +198,21 @@
                 eng: 'en',
                 es: 'es-la'
               },
+              queryLocaleMap = {
+                ru: 'ru',
+                en: 'en',
+                eng: 'en',
+                es: 'es-la',
+                'es-la': 'es-la'
+              },
               pathPart = location.pathname.replace(/\/+$/, '').split('/').pop().toLowerCase(),
               fromPath = pathLocaleMap[pathPart],
+              fromQuery = queryLocaleMap[String(new URLSearchParams(location.search).get('lang') || '').toLowerCase()],
               stored = String(localStorage.getItem('site-lang') || '').toLowerCase(),
               languages = Array.prototype.slice.call(navigator.languages || [navigator.language || '']),
               detected;
             if (fromPath) return fromPath;
+            if (fromQuery) return fromQuery;
             if (D.supportedLocales.indexOf(stored) > -1) return stored;
             detected = languages.map(function(lang) {
               lang = String(lang || '').toLowerCase();
@@ -343,6 +352,11 @@
             parts.push(pathByLocale[locale] || pathByLocale.ru);
             next = '/' + parts.join('/') + location.hash;
             history.replaceState(null, document.title, next)
+          }
+
+          function normalizeLocaleUrl() {
+            if (!new URLSearchParams(location.search).has('lang')) return;
+            updateBrowserLocaleParam(S.locale)
           }
 
           function restartCurrentScreenAnimations() {
@@ -1633,6 +1647,7 @@
 
           loadLocale().then(function(dict) {
             applyLocale(dict);
+            normalizeLocaleUrl();
             init()
           }).catch(function() {
             init()
