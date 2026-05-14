@@ -193,12 +193,17 @@
           }
 
           function localeFromRequest() {
-            var fromUrl = new URLSearchParams(location.search).get('lang'),
-              requested = String(fromUrl || '').toLowerCase(),
+            var pathLocaleMap = {
+                ru: 'ru',
+                eng: 'en',
+                es: 'es-la'
+              },
+              pathPart = location.pathname.replace(/\/+$/, '').split('/').pop().toLowerCase(),
+              fromPath = pathLocaleMap[pathPart],
               stored = String(localStorage.getItem('site-lang') || '').toLowerCase(),
               languages = Array.prototype.slice.call(navigator.languages || [navigator.language || '']),
               detected;
-            if (D.supportedLocales.indexOf(requested) > -1) return requested;
+            if (fromPath) return fromPath;
             if (D.supportedLocales.indexOf(stored) > -1) return stored;
             detected = languages.map(function(lang) {
               lang = String(lang || '').toLowerCase();
@@ -326,10 +331,17 @@
           }
 
           function updateBrowserLocaleParam(locale) {
-            var params = new URLSearchParams(location.search),
+            var pathByLocale = {
+                ru: 'ru',
+                en: 'eng',
+                'es-la': 'es'
+              },
+              parts = location.pathname.split('/').filter(Boolean),
+              last = parts[parts.length - 1],
               next;
-            params.set('lang', locale);
-            next = location.pathname + '?' + params.toString() + location.hash;
+            if (['ru', 'eng', 'es'].indexOf(last) > -1) parts.pop();
+            parts.push(pathByLocale[locale] || pathByLocale.ru);
+            next = '/' + parts.join('/') + location.hash;
             history.replaceState(null, document.title, next)
           }
 

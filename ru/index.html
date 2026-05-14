@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Marketing & Creative Community</title>
+    <script>
+      fetch('../index.html').then(function(response) {
+        return response.text()
+      }).then(function(html) {
+        document.open();
+        document.write(html.replace('<head>', '<head><base href="../">'));
+        document.close()
+      })
+    </script>
+  </head>
+  <body></body>
+</html>
