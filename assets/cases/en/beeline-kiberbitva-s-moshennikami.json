@@ -1,0 +1,22 @@
+{
+  "cat": "Special Project",
+  "brand": "Beeline",
+  "title": "Cyber Battle Against Scammers",
+  "detail": {
+    "context": "",
+    "task": "Shape Beeline's image as a secure operator and communicate the key message of the My Safety service: a virtual assistant warns users about unwanted calls right on the smartphone screen, blocks spam, and can even answer calls on its own.",
+    "insight": "A new generation of criminals has entered people's everyday lives: they use modern technology for fraud schemes and target the most vulnerable people, including loved ones who do not always know how to recognize a threat and protect themselves.",
+    "solution": "Together with Beeline, we released a video on the channel of true-crime influencer and journalist Sasha Sulim. In the episode, people affected by cyber scammers shared their personal stories, while experts broke down the main fraud schemes and the triggers scammers use to pressure victims. Clinical psychologist Evgenia Smolenskaya explained victim behavior, and Beeline's Fraud Director spoke about the nature of fraud and how the My Safety service helps protect users."
+  },
+  "stats": [
+    ["750K", ["TOTAL", "VIEWS"]],
+    ["+5.5PP", ["SAFETY", "ATTRIBUTE"]],
+    ["+18%", ["CUSTOMER", "BASE"]],
+    ["6K", ["TOTAL", "COMMENTS"]]
+  ],
+  "awards": [
+    ["3", ["Bronze", "G8, Proxima, E+"]],
+    ["2", ["Silver", "Tagline"]],
+    ["3", ["Gold", "Tagline, SM"]]
+  ]
+}

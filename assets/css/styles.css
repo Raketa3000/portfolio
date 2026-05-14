@@ -835,7 +835,6 @@
       .case-password__submit,
       .case-media__fallback-link,
       .contact-info__link-word,
-      .case-disclosure__title,
       .case-title__line {
         --underline-offset: .12em;
         position: relative;
@@ -848,7 +847,6 @@
       .case-password__submit:after,
       .case-media__fallback-link:after,
       .contact-info__link-word:after,
-      .case-disclosure__title:after,
       .case-title__line:after {
         content: "";
         position: absolute;
@@ -875,8 +873,6 @@
       .case-media__fallback-link:focus-visible:after,
       .contact-info:hover .contact-info__link-word:after,
       .contact-info:focus-visible .contact-info__link-word:after,
-      .case-disclosure__toggle:hover .case-disclosure__title:after,
-      .case-disclosure__toggle:focus-visible .case-disclosure__title:after,
       .case-card:hover .case-title__line:after,
       .case-card:focus-visible .case-title__line:after,
       .cases-more:hover .case-title__line:after,

@@ -1,0 +1,21 @@
+{
+  "cat": "Special Project",
+  "brand": "Beeline",
+  "title": "The Cell Tower",
+  "detail": {
+    "context": "",
+    "task": "Strengthen the \"connection quality\" brand attribute, build awareness of it among the target audience, and shape Beeline's image as a convenient mobile operator.",
+    "insight": "People treat mobile connection as a given, but rarely think about how much technology, infrastructure, and expertise stands behind a stable signal every day.",
+    "solution": "Beeline launched the popular-science mini-series \"The Cell Tower\" - three episodes filmed in Moscow, Saint Petersburg, and Kaliningrad with blogger Yan Topless. Together with Beeline experts, he showed how mobile connection works: how base stations operate, how the signal reaches users even in complex urban environments, and how the towers themselves get internet access."
+  },
+  "stats": [
+    ["17K", ["SITE", "VISITS"]],
+    ["1M", ["MEDIA", "VIEWS"]],
+    ["15M", ["VKONTAKTE", "VIEWS"]],
+    ["5.52%", ["ENGAGEMENT", "RATE"]]
+  ],
+  "awards": [
+    ["1", ["Shortlist", "ABA"]],
+    ["3", ["Silver", "SM, Proxima"]]
+  ]
+}

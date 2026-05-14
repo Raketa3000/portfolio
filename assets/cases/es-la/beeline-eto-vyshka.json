@@ -1,0 +1,21 @@
+{
+  "cat": "Proyecto especial",
+  "brand": "Beeline",
+  "title": "La Antena",
+  "detail": {
+    "context": "",
+    "task": "Fortalecer el atributo de marca \"calidad de conexión\", construir awareness sobre ese atributo en la audiencia objetivo y formar la imagen de Beeline como un operador móvil conveniente.",
+    "insight": "Las personas dan por sentada la conexión móvil, pero rara vez piensan en la cantidad de tecnología, infraestructura y expertise que hay detrás de una señal estable todos los días.",
+    "solution": "Beeline lanzó la miniserie de divulgación \"La Antena\": tres episodios filmados en Moscú, San Petersburgo y Kaliningrado con el blogger Yan Topless. Junto con expertos de la marca, mostró cómo funciona la conexión móvil: cómo operan las estaciones base, cómo la señal llega a los usuarios incluso en entornos urbanos complejos y cómo las propias antenas reciben internet."
+  },
+  "stats": [
+    ["17K", ["VISITAS", "AL SITIO"]],
+    ["1M", ["VIEWS", "EN MEDIOS"]],
+    ["15M", ["VIEWS", "EN VKONTAKTE"]],
+    ["5.52%", ["ENGAGEMENT", "RATE"]]
+  ],
+  "awards": [
+    ["1", ["Shortlist", "ABA"]],
+    ["3", ["Plata", "SM, Proxima"]]
+  ]
+}

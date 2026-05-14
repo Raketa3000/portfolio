@@ -1,0 +1,22 @@
+{
+  "cat": "Proyecto especial",
+  "brand": "Beeline",
+  "title": "Ciberbatalla contra estafadores",
+  "detail": {
+    "context": "",
+    "task": "Construir la imagen de Beeline como un operador seguro y comunicar el mensaje clave del servicio Mi Seguridad: un asistente virtual advierte sobre llamadas no deseadas directamente en la pantalla del smartphone, bloquea spam e incluso puede responder llamadas por su cuenta.",
+    "insight": "Una nueva generación de criminales llegó a la vida cotidiana de las personas: usan tecnologías modernas para esquemas de fraude y atacan también a los más vulnerables, incluidos seres queridos que no siempre saben cómo reconocer una amenaza y protegerse.",
+    "solution": "Junto con Beeline, lanzamos un video en el canal de la periodista e influencer true-crime Sasha Sulim. En el episodio, personas afectadas por ciberestafadores compartieron sus historias personales, mientras expertos explicaron los principales esquemas de fraude y los disparadores que usan los estafadores para presionar a sus víctimas. La psicóloga clínica Evgenia Smolenskaya explicó el comportamiento de las víctimas, y el Director de Fraude de Beeline habló sobre la naturaleza del fraude y cómo el servicio Mi Seguridad ayuda a proteger a los usuarios."
+  },
+  "stats": [
+    ["750K", ["VIEWS", "TOTALES"]],
+    ["+5.5PP", ["ATRIBUTO", "SEGURIDAD"]],
+    ["+18%", ["BASE", "DE CLIENTES"]],
+    ["6K", ["COMENTARIOS", "TOTALES"]]
+  ],
+  "awards": [
+    ["3", ["Bronce", "G8, Proxima, E+"]],
+    ["2", ["Plata", "Tagline"]],
+    ["3", ["Oro", "Tagline, SM"]]
+  ]
+}

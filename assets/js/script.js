@@ -111,10 +111,11 @@
               menuAnimationMs: 900,
               sectionLock: 650,
               backIcon: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"></path><path d="M3 3v6h6"></path></svg>',
-              caseDataVersion: '2026-05-12-media-load-optimizations',
+              caseDataVersion: '2026-05-14-case-localization',
               caseFiles: ['beeline-eto-vyshka', 'beeline-kiberbitva-s-moshennikami', 'letual-prohor-shalyapin',
                 'burger-king', 'condoms'
               ],
+              caseBrandIds: ['beeline', 'beeline', 'letual', 'burgerKing', ''],
               supportedLocales: ['ru', 'en', 'es-la'],
               defaultLocale: 'ru'
             },
@@ -175,6 +176,9 @@
             },
             toRawUrl = function(v) {
               return 'assets/cases/' + v + '.json?v=' + encodeURIComponent(D.caseDataVersion)
+            },
+            toLocalizedCaseUrl = function(v, locale) {
+              return 'assets/cases/' + locale + '/' + v + '.json?v=' + encodeURIComponent(D.caseDataVersion)
             };
 
           function mergeDeep(base, extra) {
@@ -360,8 +364,14 @@
               if ($('.cases-more .case-title__line', E.grid)) {
                 html($('.cases-more .case-title__line', E.grid), fmt(SITE_DATA.previewsMoreLabel || 'Еще больше кейсов'))
               }
+              D.cases = [];
+              D.casesPromise = null;
+              fetchCases().then(function() {
+                renderCaseCards();
+                bindCaseCards();
+                if (S.overlay.open && S.overlay.caseIndex != null) renderCase(S.overlay.caseIndex)
+              });
               restartCurrentScreenAnimations();
-              if (S.overlay.open && S.overlay.caseIndex != null) renderCase(S.overlay.caseIndex)
             })
           }
 
@@ -472,7 +482,10 @@
 
           function renderCaseCards() {
             if (!E.grid) return;
-            E.grid.innerHTML = SITE_DATA.previews.map(function(x, i) {
+            var previews = D.cases.length ? D.cases.map(function(item) {
+              return { title: String(item && item.title || '').split('\n') }
+            }) : SITE_DATA.previews;
+            E.grid.innerHTML = previews.map(function(x, i) {
               var title = x.title.map(function(line) {
                 return '<span class="case-title__line">' + fmt(line) + '</span>'
               }).join('');
@@ -481,7 +494,27 @@
             }).join('') +
               '<button class="cases-more fu td-5" type="button"><span class="case-title heading"><span class="case-title__line">' +
               fmt(SITE_DATA.previewsMoreLabel || 'Еще больше кейсов') + '</span></span></button>';
-            E.cards = $$('.case-card')
+            E.cards = $$('.case-card');
+            if (S.revealed.s2) $$('.fu', E.grid).forEach(function(el) {
+              el.classList.add('on')
+            })
+          }
+
+          function bindCaseCards() {
+            E.cards.forEach(function(card) {
+              if (card.getAttribute('data-case-bound')) return;
+              card.setAttribute('data-case-bound', '1');
+              card.addEventListener('click', function() {
+                fetchCases().then(function() {
+                  openCase(+card.getAttribute('data-case-index'))
+                })
+              })
+            });
+            var more = $('.cases-more', E.grid);
+            if (more && !more.getAttribute('data-case-bound')) {
+              more.setAttribute('data-case-bound', '1');
+              more.addEventListener('click', openMoreCases)
+            }
           }
 
           function normalizeCase(item) {
@@ -535,6 +568,16 @@
               return fetch(toRawUrl(v)).then(function(r) {
                 if (!r.ok) throw new Error(v);
                 return r.json()
+              }).then(function(base) {
+                if (S.locale === D.defaultLocale) return base;
+                return fetch(toLocalizedCaseUrl(v, S.locale)).then(function(r) {
+                  if (!r.ok) throw new Error(v);
+                  return r.json()
+                }).then(function(extra) {
+                  return mergeDeep(base, extra)
+                }).catch(function() {
+                  return base
+                })
               }).then(normalizeCase).catch(function() {
                 return null
               })
@@ -1444,6 +1487,10 @@
             setupClientCounts();
             renderCaseCards();
             var casesReady = fetchCases();
+            casesReady.then(function() {
+              renderCaseCards();
+              bindCaseCards()
+            });
             addEventListener('resize', function() {
               setMenu(false);
               updateMaster();
@@ -1497,10 +1544,12 @@
             });
             $$('[data-random-brand]').forEach(function(item) {
               item.addEventListener('click', function() {
-                var brand = item.getAttribute('data-random-brand').toLowerCase();
+                var brand = item.getAttribute('data-random-brand').toLowerCase(),
+                  clientId = item.getAttribute('data-client-id') || '';
                 casesReady.then(function() {
                   var matches = D.cases.map(function(caseItem, index) {
-                    return caseItem && String(caseItem.brand || '').toLowerCase() === brand ? index : null
+                    return caseItem && (D.caseBrandIds[index] === clientId || String(caseItem.brand || '')
+                      .toLowerCase() === brand) ? index : null
                   }).filter(function(index) {
                     return index != null
                   });
@@ -1510,14 +1559,7 @@
                 })
               })
             });
-            E.cards.forEach(function(card) {
-              card.addEventListener('click', function() {
-                casesReady.then(function() {
-                  openCase(+card.getAttribute('data-case-index'))
-                })
-              })
-            });
-            $('.cases-more', E.grid) && $('.cases-more', E.grid).addEventListener('click', openMoreCases);
+            bindCaseCards();
             E.close && E.close.addEventListener('click', closeCase);
             E.stage && E.stage.addEventListener('click', function(e) {
               var disclosureBtn = e.target.closest && e.target.closest('.case-disclosure__toggle');
