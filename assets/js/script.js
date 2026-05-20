@@ -864,12 +864,13 @@
           function setMenu(stacked) {
             if (!E.menu || !E.menuIn || E.menuItems.length !== 4) return;
             var width = E.menuIn.getBoundingClientRect().width,
-              cols = gridColumnCount(),
+              compactNav = matchMedia('(max-width: 1024px)').matches,
+              navCols = compactNav ? 6 : 12,
               gap = gridGap(),
-              col = (width - (cols - 1) * gap) / cols,
+              col = (width - (navCols - 1) * gap) / navCols,
+              slots = compactNav ? [0, 1, 2, 3] : [0, 3, 6, 9],
               lefts = E.menuItems.map(function(_, i) {
-                if (cols >= 12) return i * 3;
-                return Math.round(i * (cols - 1) / (E.menuItems.length - 1))
+                return slots[i]
               }).map(function(i) {
                 return i * (col + gap)
               }),
@@ -1023,8 +1024,10 @@
           }
 
           function updateNav() {
-            var hero = curr() === 's0';
+            var hero = curr() === 's0',
+              back = !hero;
             syncUiState();
+            cls(E.body, 'nav-back-visible', back);
             clear('menuReset');
             if (E.menu) {
               E.menu.classList.remove('is-animating');
@@ -1042,7 +1045,7 @@
             }
             E.btn.style.visibility = 'visible';
             E.btn.style.pointerEvents = 'auto';
-            E.btn.innerHTML = screenCfg(curr()).navIcon === 'back' ? D.backIcon : ''
+            E.btn.innerHTML = D.backIcon
           }
 
           function go(target, anim) {
@@ -1051,7 +1054,7 @@
             if (ids.indexOf(next) < 0) return;
             S.section = next;
             E.w.style.transition = anim ? 'var(--sec)' : 'none';
-            E.w.style.transform = 'translateY(-' + (ids.indexOf(next) * 100) + 'vh)';
+            E.w.style.transform = 'translateY(calc(-' + ids.indexOf(next) + ' * 100svh))';
             updateNav();
             reveal(curr());
             if (next === 's0') {
@@ -1144,10 +1147,11 @@
           function renderCaseAccordion(flow, stats, awards) {
             var wrap = document.createElement('div'),
               cols = gridColumnCount(),
+              stacked = matchMedia('(max-width: 1024px)').matches,
               compact = cols <= 6;
             wrap.className = 'case-accordion';
-            wrap.style.setProperty('--gc', compact ? '1/span ' + cols : '1/span 6');
-            wrap.style.setProperty('--gr', compact ? '3' : '2');
+            wrap.style.setProperty('--gc', stacked ? '1/span ' + cols : '1/span 6');
+            wrap.style.setProperty('--gr', stacked ? '2' : '2/span 2');
             wrap.innerHTML = renderAccordion(flow, stats, awards);
             return wrap
           }
@@ -1314,12 +1318,13 @@
             if (!media.length) return null;
             var wrap = document.createElement('div'),
               cols = gridColumnCount(),
+              stacked = matchMedia('(max-width: 1024px)').matches,
               compact = cols <= 6;
             wrap.className = 'case-media';
-            wrap.style.setProperty('--gc', compact ? '1/span ' + cols : '7/span 6');
-            wrap.style.setProperty('--gr', '1/span 4');
-            if (media[0].gridColumn && !compact) wrap.style.setProperty('--gc', media[0].gridColumn);
-            if (media[0].gridRow && !compact) wrap.style.setProperty('--gr', media[0].gridRow);
+            wrap.style.setProperty('--gc', stacked ? '1/span ' + cols : '7/span 6');
+            wrap.style.setProperty('--gr', stacked ? '4' : '1/span 4');
+            if (media[0].gridColumn && !stacked) wrap.style.setProperty('--gc', media[0].gridColumn);
+            if (media[0].gridRow && !stacked) wrap.style.setProperty('--gr', media[0].gridRow);
             if (media[0].alignSelf) wrap.style.alignSelf = media[0].alignSelf;
             if (media[0].justifySelf) wrap.style.justifySelf = media[0].justifySelf;
             wrap.innerHTML = media.map(renderMediaItem).join('');
@@ -1353,8 +1358,8 @@
             html(E.brand, fmt(item.brand || ''));
             html(E.title, fmt(item.title || ''));
             E.bodyPane.innerHTML = '';
-            if (hasMedia) E.bodyPane.appendChild(renderMedia(item.media));
             E.bodyPane.appendChild(renderCaseAccordion(flow, item.stats || [], item.awards || []));
+            if (hasMedia) E.bodyPane.appendChild(renderMedia(item.media));
             scheduleCaseFit();
             syncUiState()
           }
@@ -1561,7 +1566,7 @@
               })
             });
             E.btn && E.btn.addEventListener('click', function() {
-              go(curr() === 's3' ? 's0' : curr() === 's2' ? 's3' : 's2')
+              if (curr() !== 's0') go('s0')
             });
             E.menuItems.forEach(function(item) {
               item.addEventListener('click', function() {
