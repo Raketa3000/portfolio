@@ -113,7 +113,7 @@
     "moreAccess": "Password-protected access",
     "moreTitle": "More cases",
     "promptA": "SEND US<br>YOUR<br>BRIEF",
-    "promptB": "WE WILL<br>SEND YOU<br>THE PASSWORD",
+    "promptB": "WE WILL<br>SEND&nbsp;YOU<br>THE&nbsp;PASSWORD",
     "passwordLabel": "Enter password",
     "passwordSubmit": "Open",
     "passwordError": "You need a password to access private cases.",

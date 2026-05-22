@@ -23,6 +23,7 @@
               heroA: $('#h-a'),
               heroB: $('#h-b'),
               heroLoop: $('#h-loop'),
+              heroPattern: $('.hero-pattern'),
               heroFly: $$('[data-fly]'),
               contactLoop: $('#contact-loop'),
               grid: $('#cases-grid'),
@@ -111,7 +112,7 @@
               menuAnimationMs: 900,
               sectionLock: 650,
               backIcon: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7"></path><path d="M3 3v6h6"></path></svg>',
-              caseDataVersion: '2026-05-14-case-localization',
+              caseDataVersion: '2026-05-22-case-password-breaks',
               caseFiles: ['beeline-eto-vyshka', 'beeline-kiberbitva-s-moshennikami', 'letual-prohor-shalyapin',
                 'burger-king', 'condoms'
               ],
@@ -168,6 +169,23 @@
               return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g,
                 '&quot;')
             },
+            appendRichLines = function(root, value) {
+              String(value == null ? '' : value).split(/<br\s*\/?>/i).forEach(function(line) {
+                var span = document.createElement('span');
+                span.className = 'neon-line';
+                span.textContent = line.replace(/&nbsp;/gi, '\u00a0');
+                root.appendChild(span)
+              })
+            },
+            createEl = function(tag, attrs, content) {
+              var el = document.createElement(tag);
+              Object.keys(attrs || {}).forEach(function(key) {
+                if (key === 'class') el.className = attrs[key];
+                else el.setAttribute(key, attrs[key])
+              });
+              if (content != null) el.textContent = content;
+              return el
+            },
             screenCfg = function(id) {
               return SITE_DATA.screens[id] || {}
             },
@@ -180,6 +198,12 @@
             toLocalizedCaseUrl = function(v, locale) {
               return 'assets/cases/' + locale + '/' + v + '.json?v=' + encodeURIComponent(D.caseDataVersion)
             };
+
+          function clearKeys(keys) {
+            keys.forEach(function(key) {
+              clear(key, /Ticker$/.test(key))
+            })
+          }
 
           function mergeDeep(base, extra) {
             var out = Array.isArray(base) ? base.slice() : Object.assign({}, base || {});
@@ -335,7 +359,10 @@
 
           function resetNeonReady() {
             [E.heroA, E.heroB, $('#contact-a'), $('#contact-b')].concat($$('.services-label')).forEach(function(el) {
-              if (el) el.removeAttribute('data-neon-ready')
+              if (el) {
+                el.removeAttribute('data-neon-ready');
+                el.removeAttribute('data-neon-source')
+              }
             })
           }
 
@@ -654,8 +681,18 @@
           }
 
           function applyNeonLetters(root, state) {
-            var isTop = !state;
-            if (!root || (isTop && root.getAttribute('data-neon-ready'))) return;
+            var isTop = !state,
+              source;
+            if (!root) return;
+            if (isTop) {
+              source = root.getAttribute('data-neon-source');
+              if (source == null) {
+                source = root.innerHTML;
+                root.setAttribute('data-neon-source', source)
+              } else {
+                root.innerHTML = source
+              }
+            }
             state = state || {
               seed: Math.floor(Math.random() * 997),
               wordIndex: 0,
@@ -668,9 +705,9 @@
                 node.nodeValue.split('').forEach(function(ch, i) {
                   if (/\s/.test(ch)) {
                     var space = document.createElement('span');
-                    space.className = 'neon-space';
+                    space.className = 'neon-space' + (ch === '\u00a0' ? ' neon-space--nbsp' : '');
                     space.setAttribute('aria-hidden', 'true');
-                    space.textContent = ' ';
+                    space.textContent = ch === '\u00a0' ? '\u00a0' : ' ';
                     frag.appendChild(space);
                     state.wordIndex++;
                     return
@@ -792,23 +829,15 @@
 
           function stopHeroMotion(resetVisual) {
             cancelFrame('heroScramble');
-            clear('heroIntro');
-            clear('heroSwap');
-            clear('heroEnterDone');
-            clear('heroSecondLine');
-            clear('heroLoopTicker', true);
+            clearKeys(['heroIntro', 'heroSwap', 'heroEnterDone', 'heroSecondLine', 'heroLoopTicker']);
             if (resetVisual) resetHeroTitle()
           }
 
           function stopContactMotion(resetVisual) {
             cancelFrame('contactScramble');
-            clear('contactLoopTicker', true);
-            clear('contactIntro');
-            clear('contactSecondLine');
-            clear('contactSwap');
-            clear('contactEnterDone');
-            clear('morePromptSwap');
-            clear('morePromptEnterDone');
+            clearKeys(['contactLoopTicker', 'contactIntro', 'contactSecondLine', 'contactSwap', 'contactEnterDone',
+              'morePromptSwap', 'morePromptEnterDone', 'morePromptDissolveDone'
+            ]);
             if (resetVisual) resetContactTitle()
           }
 
@@ -824,10 +853,7 @@
           }
 
           function scheduleHero() {
-            clear('heroIntro');
-            clear('heroSwap');
-            clear('heroEnterDone');
-            clear('heroSecondLine');
+            clearKeys(['heroIntro', 'heroSwap', 'heroEnterDone', 'heroSecondLine']);
             if (curr() !== 's0') return;
             T.heroIntro = setTimeout(function() {
               if (curr() === 's0' && E.heroA) {
@@ -859,6 +885,93 @@
                 el.classList.add('on')
               })
             }, D.heroLoopStartDelayMs)
+          }
+
+          function initHeroPattern() {
+            if (!E.heroPattern) return;
+            var cols = 14,
+              rows = 5;
+            if (!E.heroPattern.children.length) {
+              E.heroPattern.innerHTML = Array.from({
+                length: cols * rows
+              }, function() {
+                return '<span class="hero-pattern__stick"></span>'
+              }).join('')
+            }
+            var sticks = $$('.hero-pattern__stick', E.heroPattern);
+            if (!sticks.length) return;
+            var lastPointer = {
+              x: innerWidth / 2,
+              y: innerHeight / 2
+            };
+
+            function layoutHeroPattern() {
+              var frame = E.heroPattern.getBoundingClientRect(),
+                w = frame.width,
+                h = frame.height;
+              sticks.forEach(function(stick, index) {
+                var col = index % cols,
+                  row = Math.floor(index / cols),
+                  length = stick.offsetWidth || 42,
+                  thickness = stick.offsetHeight || 1,
+                  x = (length / 2) + (w - length) * (col / (cols - 1)),
+                  y = (thickness / 2) + (h - thickness) * (row / (rows - 1));
+                stick.setAttribute('data-x', x);
+                stick.setAttribute('data-y', y);
+                stick.style.setProperty('--stick-x', x + 'px');
+                stick.style.setProperty('--stick-y', y + 'px')
+              })
+            }
+
+            function rotateHeroPattern(pointer) {
+              var frame = E.heroPattern.getBoundingClientRect();
+              sticks.forEach(function(stick) {
+                var x = Number(stick.getAttribute('data-x')) || 0,
+                  y = Number(stick.getAttribute('data-y')) || 0,
+                  angle = pointer ? Math.atan2(pointer.y - (frame.top + y), pointer.x - (frame.left + x)) *
+                  180 / Math.PI : 0;
+                stick.style.setProperty('--stick-angle', angle + 'deg')
+              })
+            }
+
+            layoutHeroPattern();
+            rotateHeroPattern(lastPointer);
+            requestAnimationFrame(function() {
+              layoutHeroPattern();
+              rotateHeroPattern(lastPointer)
+            });
+            setTimeout(function() {
+              layoutHeroPattern();
+              rotateHeroPattern(lastPointer)
+            }, 300);
+            addEventListener('pointermove', function(e) {
+              lastPointer = {
+                x: e.clientX,
+                y: e.clientY
+              };
+              if (S.busy) return;
+              if (curr() !== 's0') return;
+              if (matchMedia('(pointer: coarse)').matches) return;
+              if (T.heroPattern) cancelAnimationFrame(T.heroPattern);
+              T.heroPattern = requestAnimationFrame(function() {
+                T.heroPattern = null;
+                rotateHeroPattern(lastPointer)
+              })
+            });
+            addEventListener('focus', function() {
+              if (curr() === 's0') rotateHeroPattern(lastPointer)
+            });
+            addEventListener('resize', function() {
+              if (!lastPointer) return;
+              if (lastPointer.x > innerWidth || lastPointer.y > innerHeight) {
+                lastPointer = {
+                  x: innerWidth / 2,
+                  y: innerHeight / 2
+                }
+              }
+              layoutHeroPattern();
+              rotateHeroPattern(lastPointer)
+            })
           }
 
           function setMenu(stacked) {
@@ -932,10 +1045,7 @@
             var first = $('#contact-a'),
               second = $('#contact-b');
             if (!E.contactLoop || T.contactLoopTicker) return;
-            clear('contactIntro');
-            clear('contactSecondLine');
-            clear('contactSwap');
-            clear('contactEnterDone');
+            clearKeys(['contactIntro', 'contactSecondLine', 'contactSwap', 'contactEnterDone']);
             first && first.classList.remove('off', 'hide', 'contact-title--dissolve-out', 'contact-title--dissolve-in');
             if (second) {
               second.classList.remove('off', 'hide', 'contact-title--dissolve-out', 'contact-title--dissolve-in');
@@ -1357,8 +1467,7 @@
             html(E.cat, fmt(item.cat || ''));
             html(E.brand, fmt(item.brand || ''));
             html(E.title, fmt(item.title || ''));
-            E.bodyPane.innerHTML = '';
-            E.bodyPane.appendChild(renderCaseAccordion(flow, item.stats || [], item.awards || []));
+            E.bodyPane.replaceChildren(renderCaseAccordion(flow, item.stats || [], item.awards || []));
             if (hasMedia) E.bodyPane.appendChild(renderMedia(item.media));
             scheduleCaseFit();
             syncUiState()
@@ -1385,27 +1494,43 @@
           function openMoreCases() {
             if (S.overlay.caseIndex === -1) return;
             S.overlay.caseIndex = -1;
-            clear('morePromptSwap');
-            clear('morePromptEnterDone');
+            clearKeys(['morePromptSwap', 'morePromptEnterDone', 'morePromptDissolveDone']);
             var caseStage = S.i18n && S.i18n.caseStage || {};
             html(E.cat, caseStage.moreAccess || 'Доступ по паролю');
             html(E.brand, '');
             html(E.title, caseStage.moreTitle || SITE_DATA.previewsMoreLabel || 'Еще больше кейсов');
-            E.bodyPane.innerHTML =
-              '<div class="case-password-promo">' +
-              '<div class="case-password-promo__stack">' +
-              '<div class="case-password-promo__title heading" id="case-password-promo-a">' + (caseStage.promptA || 'ОТПРАВЬТЕ<br>НАМ СВОЙ<br>БРИФ') + '</div>' +
-              '<div class="case-password-promo__title heading hide" id="case-password-promo-b">' + (caseStage.promptB || 'МЫ ПРИШЛЕМ<br>ВАМ<br>ПАРОЛЬ') + '</div>' +
-              '</div>' +
-              '</div>' +
-              '<form class="case-password" id="case-password-form">' +
-              '<label class="case-password__label" for="case-password-input">' + (caseStage.passwordLabel || 'Введите пароль') + '</label>' +
-              '<div class="case-password__row">' +
-              '<input class="case-password__input" id="case-password-input" type="password" autocomplete="current-password" inputmode="text">' +
-              '<button class="case-password__submit" type="submit">' + (caseStage.passwordSubmit || 'Открыть') + '</button>' +
-              '</div>' +
-              '<p class="case-password__message" aria-live="polite"></p>' +
-              '</form>';
+            E.bodyPane.replaceChildren();
+            var promo = createEl('div', { class: 'case-password-promo' }),
+              stack = createEl('div', { class: 'case-password-promo__stack' }),
+              promptAEl = createEl('div', {
+                class: 'case-password-promo__title heading',
+                id: 'case-password-promo-a'
+              }),
+              promptBEl = createEl('div', {
+                class: 'case-password-promo__title heading hide',
+                id: 'case-password-promo-b'
+              }),
+              formEl = createEl('form', { class: 'case-password', id: 'case-password-form' }),
+              labelEl = createEl('label', { class: 'case-password__label', for: 'case-password-input' },
+                caseStage.passwordLabel || 'Введите пароль'),
+              rowEl = createEl('div', { class: 'case-password__row' }),
+              inputEl = createEl('input', {
+                class: 'case-password__input',
+                id: 'case-password-input',
+                type: 'password',
+                autocomplete: 'current-password',
+                inputmode: 'text'
+              }),
+              submitEl = createEl('button', { class: 'case-password__submit', type: 'submit' },
+                caseStage.passwordSubmit || 'Открыть'),
+              messageEl = createEl('p', { class: 'case-password__message', 'aria-live': 'polite' });
+            appendRichLines(promptAEl, caseStage.promptA || 'ОТПРАВЬТЕ<br>НАМ СВОЙ<br>БРИФ');
+            appendRichLines(promptBEl, caseStage.promptB || 'МЫ ПРИШЛЕМ<br>ВАМ&nbsp;ПАРОЛЬ');
+            stack.append(promptAEl, promptBEl);
+            promo.appendChild(stack);
+            rowEl.append(inputEl, submitEl);
+            formEl.append(labelEl, rowEl, messageEl);
+            E.bodyPane.append(promo, formEl);
             toggleStage(true);
             var form = $('#case-password-form'),
               input = $('#case-password-input', form),
@@ -1418,17 +1543,17 @@
             applyNeonLetters(promptA);
             applyNeonLetters(promptB);
             T.morePromptSwap = setTimeout(function() {
-              if (promptA) promptA.classList.add('contact-title--dissolve-out');
+              if (promptA) promptA.classList.add('hero-title--dissolve-out');
               T.morePromptEnterDone = setTimeout(function() {
                 if (promptA) {
                   promptA.classList.add('off');
-                  promptA.classList.remove('contact-title--dissolve-out')
+                  promptA.classList.remove('hero-title--dissolve-out')
                 }
                 if (promptB) {
                   promptB.classList.remove('hide', 'off');
-                  promptB.classList.add('contact-title--dissolve-in');
-                  setTimeout(function() {
-                    promptB.classList.remove('contact-title--dissolve-in')
+                  promptB.classList.add('hero-title--dissolve-in');
+                  T.morePromptDissolveDone = setTimeout(function() {
+                    promptB.classList.remove('hero-title--dissolve-in')
                   }, 440)
                 }
               }, 500)
@@ -1443,8 +1568,7 @@
           function closeCase() {
             if (S.overlay.caseIndex == null) return;
             S.overlay.caseIndex = null;
-            clear('morePromptSwap');
-            clear('morePromptEnterDone');
+            clearKeys(['morePromptSwap', 'morePromptEnterDone', 'morePromptDissolveDone']);
             toggleStage(false)
           }
 
@@ -1515,6 +1639,7 @@
 
           function init() {
             setupNeonLetters();
+            initHeroPattern();
             setupClientCounts();
             renderCaseCards();
             var casesReady = fetchCases();
@@ -1523,10 +1648,14 @@
               bindCaseCards()
             });
             addEventListener('resize', function() {
-              setMenu(false);
-              updateMaster();
-              updateDevGrid();
-              if (S.overlay.open && S.overlay.caseIndex != null) renderCase(S.overlay.caseIndex)
+              if (T.resizeFrame) cancelAnimationFrame(T.resizeFrame);
+              T.resizeFrame = requestAnimationFrame(function() {
+                T.resizeFrame = null;
+                setMenu(false);
+                updateMaster();
+                updateDevGrid();
+                if (S.overlay.open && S.overlay.caseIndex != null && S.overlay.caseIndex > -1) renderCase(S.overlay.caseIndex)
+              })
             });
             addEventListener('wheel', function(e) {
               if (S.overlay.open) return;

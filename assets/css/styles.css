@@ -220,7 +220,6 @@
 
       .section-grid,
       nav,
-      .utility-grid,
       .menu__inner,
       .case-stage__frame,
       .master-grid,
@@ -238,7 +237,6 @@
 
       .section-grid,
       nav,
-      .utility-grid,
       .menu__inner,
       .case-stage__frame,
       .master-grid,
@@ -394,6 +392,39 @@
         margin-top: clamp(36px, 6vw, 72px)
       }
 
+      .hero-pattern {
+        grid-column: 6/13;
+        grid-row: 2/4;
+        position: relative;
+        align-self: stretch;
+        justify-self: stretch;
+        min-width: 0;
+        min-height: 0;
+        overflow: visible;
+        contain: layout;
+        pointer-events: none;
+        opacity: .65;
+        color: var(--text);
+        mix-blend-mode: screen;
+        z-index: 1
+      }
+
+      .hero-pattern__stick {
+        position: absolute;
+        left: var(--stick-x, 0);
+        top: var(--stick-y, 0);
+        width: clamp(18px, 3vw, 42px);
+        height: 1px;
+        display: block;
+        background: currentColor;
+        transform: translate(-50%, -50%) rotate(var(--stick-angle, 0deg));
+        transform-origin: center;
+        transition: transform .18s var(--ease-soft), opacity .18s ease;
+        will-change: transform;
+        opacity: .8;
+        box-shadow: 0 0 10px rgba(255,77,166,.35)
+      }
+
       .hero-title-layer,
       .hero-title-stack,
       .contact-title-layer,
@@ -531,6 +562,19 @@
         width: var(--spacing-neon-word)
       }
 
+      .neon-space--nbsp {
+        white-space: nowrap
+      }
+
+      .neon-line {
+        display: block;
+        width: max-content;
+        max-width: 100%;
+        min-height: 1em;
+        line-height: 1;
+        white-space: nowrap
+      }
+
       .neon-letter--drop {
         animation: neonLetterDrop var(--neon-letter-duration, 14s) steps(1, end) infinite;
         animation-delay: var(--neon-letter-delay, 0s)
@@ -632,6 +676,14 @@
         animation: neonDissolveIn .44s cubic-bezier(.22, .61, .36, 1) both
       }
 
+      .case-password-promo__title.hero-title--dissolve-out {
+        animation: neonDissolveOut .5s cubic-bezier(.22, .61, .36, 1) both
+      }
+
+      .case-password-promo__title.hero-title--dissolve-in {
+        animation: neonDissolveIn .44s cubic-bezier(.22, .61, .36, 1) both
+      }
+
       @keyframes neonDissolveOut {
         0% {
           opacity: 1;
@@ -724,7 +776,6 @@
       }
 
       nav,
-      .utility-grid,
       .menu {
         position: fixed;
         left: 50%;
@@ -744,30 +795,28 @@
         pointer-events: none
       }
 
-      .utility-grid {
-        z-index: 120;
-        display: grid;
-        grid-template-columns: repeat(var(--nav-columns), minmax(0, 1fr));
-        column-gap: var(--grid-gap);
-        height: var(--nav-height);
-        overflow: hidden;
-        pointer-events: none
-      }
-
       nav,
       .menu__inner {
         grid-template-columns: repeat(var(--nav-columns), minmax(0, 1fr));
       }
 
-      .utility-grid--dev {
-        bottom: calc(var(--section-padding-bottom) + var(--nav-height) + 14px)
+      body>.lang-switcher {
+        position: fixed;
+        top: calc(var(--nav-top) + (var(--nav-height) - 1.2em)/2);
+        right: calc((100vw - var(--grid-shell-width))/2);
+        z-index: 120
       }
 
-      .utility-grid--lang {
-        top: var(--nav-top)
+      body>#dev-toggle {
+        position: fixed;
+        right: calc((100vw - var(--grid-shell-width))/2);
+        bottom: calc(var(--section-padding-bottom) + var(--nav-height) + 14px);
+        z-index: 120;
+        width: auto;
+        height: auto
       }
 
-      body.nav-back-visible .utility-grid--lang {
+      body.nav-back-visible>.lang-switcher {
         opacity: 0;
         visibility: hidden;
         pointer-events: none
@@ -1344,8 +1393,10 @@
       }
 
       .case-password-promo {
-        grid-column: 1/span 6;
+        grid-column: 1/span 8;
         grid-row: 2;
+        position: relative;
+        z-index: 2;
         align-self: start;
         justify-self: stretch;
         min-width: 0;
@@ -1355,21 +1406,25 @@
       .case-password-promo__stack {
         position: relative;
         width: 100%;
-        min-height: clamp(96px, 16.5vw, 192px)
+        min-height: var(--case-password-promo-height, clamp(108px, 16.5vw, 192px))
       }
 
       .case-password-promo__title {
         position: absolute;
         top: 0;
         left: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
         width: max-content;
-        max-width: 100%;
+        max-width: none;
         font: var(--font-section);
         font-weight: 300;
         letter-spacing: var(--tracking-display-cyr);
         word-spacing: var(--spacing-neon-word);
         font-kerning: normal;
         line-height: 1;
+        min-height: 3em;
         text-transform: uppercase;
         white-space: nowrap;
         text-shadow: var(--glow);
@@ -1377,14 +1432,14 @@
         transition: opacity .28s ease, filter .28s ease
       }
 
-      .case-password-promo__title:not(.hide):not(.off) {
-        animation: neonFlicker 7.4s ease-in-out infinite
+      .case-password-promo__title:not(.hide):not(.off):not(.hero-title--dissolve-out):not(.hero-title--dissolve-in) {
+        animation: neonFlicker 6.8s ease-in-out infinite
       }
 
       .case-password-promo__title.off,
       .case-password-promo__title.hide {
         opacity: 0;
-        filter: brightness(.65) blur(2px);
+        filter: brightness(.55) blur(2px);
         pointer-events: none
       }
 
@@ -1393,12 +1448,14 @@
       }
 
       .case-password {
-        grid-column: 7/span 6;
+        grid-column: 7/span 4;
         grid-row: 2;
+        position: relative;
+        z-index: 1;
         align-self: start;
         justify-self: stretch;
         width: 100%;
-        max-width: 520px;
+        max-width: none;
         color: var(--text)
       }
 
@@ -1442,8 +1499,18 @@
       }
 
       .case-password__submit {
+        --underline-offset: .12em;
+        align-self: end;
+        min-height: 1.1em;
         padding: 0;
+        border-bottom: 0;
+        line-height: 1.1;
         cursor: pointer
+      }
+
+      .case-password__submit:after {
+        transform: scaleX(1);
+        transform-origin: left center
       }
 
       .case-password__message {
@@ -1517,7 +1584,13 @@
         display: block
       }
 
-      .contact-info__link-word {
+      .contact-info__value > .contact-info__link-word {
+        display: table;
+        width: max-content;
+        max-width: 100%;
+        min-height: 1.1em;
+        line-height: 1.1;
+        white-space: nowrap;
         text-decoration: none
       }
 
@@ -2042,14 +2115,8 @@
         }
 
         nav,
-        .menu__inner,
-        .utility-grid,
-        .utility-grid--lang {
+        .menu__inner {
           grid-template-columns: repeat(var(--nav-columns), minmax(0, 1fr));
-        }
-
-        .utility-grid--lang {
-          top: var(--nav-top);
         }
 
         body.nav-back-visible nav {
@@ -2148,7 +2215,6 @@
           grid-row: 11/span 1;
         }
 
-        .case-stage__meta { grid-column: 1/span 8 }
         .case-stage__frame {
           overflow-y: auto;
           overflow-x: hidden;
@@ -2189,6 +2255,7 @@
           --master-top: 70px;
           --nav-height: var(--nav-height-tablet);
           --reveal-y: 14px;
+          --case-password-promo-height: clamp(108px, 27vw, 156px);
           --font-section: 300 clamp(34px, 9.4vw, 48px)/1 var(--font-neon);
           --font-hero: var(--font-section);
           --font-title: 300 clamp(16px, 4.8vw, 22px)/1.1 var(--font-family);
@@ -2201,18 +2268,12 @@
         }
 
         nav,
-        .menu__inner,
-        .utility-grid,
-        .utility-grid--lang {
+        .menu__inner {
           grid-template-columns: repeat(var(--nav-columns), minmax(0, 1fr));
         }
 
         .case-stage__frame, .master-grid, .dev-rows {
           grid-template-rows: repeat(12, minmax(0, 1fr));
-        }
-
-        .utility-grid--lang {
-          top: var(--nav-top);
         }
 
         .lang-switcher {
@@ -2236,6 +2297,12 @@
           grid-column: 1/span 6;
           grid-row: 6/span 2;
           margin-top: 0;
+        }
+
+        .hero-pattern {
+          grid-column: 1/span 6;
+          grid-row: 8/span 4;
+          opacity: .5;
         }
 
         .hero-anchor {
@@ -2307,7 +2374,7 @@
         .contact-member--left {
           grid-column: 1/span 2;
         }
-        .contact-photo--left { grid-row: 7/span 2; }
+        .contact-photo--left { grid-row: 5/span 2; }
 
         .contact-photo--right,
         .contact-member--right {
@@ -2315,17 +2382,17 @@
         }
         .contact-photo--right {
           grid-column: 4/span 2;
-          grid-row: 7/span 2;
+          grid-row: 5/span 2;
         }
 
         .contact-member--left {
           grid-column: 1/span 3;
-          grid-row: 9/span 1;
+          grid-row: 7/span 1;
         }
 
         .contact-member--right {
           grid-column: 4/span 3;
-          grid-row: 9/span 1;
+          grid-row: 7/span 1;
         }
 
         .contact-info {
@@ -2344,15 +2411,14 @@
 
         .contact-info--telegram,
         .contact-info--email {
-          grid-row: 11/span 1;
+          grid-row: 9/span 1;
         }
 
         .contact-info--ba,
         .contact-info--msk {
-          grid-row: 5/span 1;
+          grid-row: 11/span 1;
         }
 
-        .case-stage__meta { grid-column: 1/span 6 }
         .case-stage__frame {
           overflow-y: auto;
           overflow-x: hidden;
@@ -2371,6 +2437,7 @@
         .case-password {
           grid-column: 1/span 6;
           grid-row: 3;
+          margin-top: calc(var(--space-block) * 1.5);
         }
         .case-accordion {
           grid-column: 1/span 6;
@@ -2430,6 +2497,7 @@
           --grid-padding: var(--grid-padding-mobile);
           --master-top: 60px;
           --nav-height: var(--nav-height-mobile);
+          --case-password-promo-height: clamp(104px, 32vw, 144px);
           --space-title-body: 12px;
           --space-eyebrow-title: 6px;
         }
@@ -2439,9 +2507,7 @@
         }
 
         nav,
-        .menu__inner,
-        .utility-grid,
-        .utility-grid--lang {
+        .menu__inner {
           grid-template-columns: repeat(var(--nav-columns), minmax(0, 1fr));
         }
 
@@ -2470,6 +2536,11 @@
           grid-row: 6/span 2;
         }
 
+        .hero-pattern {
+          grid-column: 1/span 4;
+          grid-row: 8/span 4;
+        }
+
         .service-card--left,
         .service-card--right {
           grid-column: 1/span 4;
@@ -2491,22 +2562,22 @@
 
         .contact-photo--left {
           grid-column: 1/span 2;
-          grid-row: 7/span 2;
+          grid-row: 5/span 2;
         }
 
         .contact-photo--right {
           grid-column: 3/span 2;
-          grid-row: 7/span 2;
+          grid-row: 5/span 2;
         }
 
         .contact-member--left {
           grid-column: 1/span 2;
-          grid-row: 9/span 1;
+          grid-row: 7/span 1;
         }
 
         .contact-member--right {
           grid-column: 3/span 2;
-          grid-row: 9/span 1;
+          grid-row: 7/span 1;
         }
 
         .contact-info--ba,
@@ -2521,15 +2592,14 @@
 
         .contact-info--telegram,
         .contact-info--email {
-          grid-row: 11/span 1;
+          grid-row: 9/span 1;
         }
 
         .contact-info--ba,
         .contact-info--msk {
-          grid-row: 5/span 1;
+          grid-row: 11/span 1;
         }
 
-        .case-stage__meta { grid-column: 1/span 4 }
         .case-stage__meta {
           grid-column: 1/span 4;
           grid-row: 1;
@@ -2541,6 +2611,7 @@
         .case-password {
           grid-column: 1/span 4;
           grid-row: 3;
+          margin-top: calc(var(--space-block) * 1.5);
         }
         .case-accordion {
           grid-column: 1/span 4;
