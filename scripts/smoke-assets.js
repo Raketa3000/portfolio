@@ -43,7 +43,8 @@ function isExternal(url) {
 
 function checkMediaPath(file, value) {
   if (!value || isExternal(value)) return;
-  assert(exists(value), `${file}: missing media file ${value}`);
+  const localPath = value.split(/[?#]/, 1)[0];
+  assert(exists(localPath), `${file}: missing media file ${value}`);
 }
 
 const html = read('index.html');
