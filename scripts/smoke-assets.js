@@ -51,6 +51,10 @@ requiredIds.forEach((id) => {
   assert(new RegExp(`id=["']${id}["']`).test(html), `index.html: missing #${id}`);
 });
 
+const favicon = html.match(/<link\b[^>]*\brel=["']icon["'][^>]*\bhref=["']([^"']+)["']/i);
+assert(favicon, 'index.html: missing favicon');
+checkMediaPath('index.html', favicon[1]);
+
 const caseFiles = [];
 function collectCases(dir) {
   fs.readdirSync(path.join(root, dir), { withFileTypes: true }).forEach((entry) => {
